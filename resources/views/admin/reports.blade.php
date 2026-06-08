@@ -1,0 +1,88 @@
+<x-app-layout>
+    <x-slot name="header">Reportes</x-slot>
+
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
+        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
+            <p class="text-sm font-medium text-gray-500 dark:text-gray-400">Ventas Totales</p>
+            <p class="text-2xl font-bold text-gray-900 dark:text-white mt-1">{{ $totalSales }}</p>
+        </div>
+        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
+            <p class="text-sm font-medium text-gray-500 dark:text-gray-400">Ingresos Totales</p>
+            <p class="text-2xl font-bold text-emerald-600 dark:text-emerald-400 mt-1">₲ {{ number_format($totalRevenue, 0, ',', '.') }}</p>
+        </div>
+        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
+            <p class="text-sm font-medium text-gray-500 dark:text-gray-400">Ingresos del Mes</p>
+            <p class="text-2xl font-bold text-blue-600 dark:text-blue-400 mt-1">₲ {{ number_format($monthlyRevenue, 0, ',', '.') }}</p>
+        </div>
+        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
+            <p class="text-sm font-medium text-gray-500 dark:text-gray-400">Clientes</p>
+            <p class="text-2xl font-bold text-gray-900 dark:text-white mt-1">{{ $totalCustomers }}</p>
+        </div>
+    </div>
+
+    <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6 mb-6">
+        <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Ventas Diarias (30 días)</h3>
+        <div class="relative" style="height: 250px;">
+            <canvas id="dailyChart"></canvas>
+        </div>
+    </div>
+
+    <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden">
+        <div class="px-4 py-3 border-b border-gray-200 dark:border-gray-700">
+            <h3 class="text-lg font-semibold text-gray-900 dark:text-white">Detalle por Fecha</h3>
+        </div>
+        <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+                <thead class="bg-gray-50 dark:bg-gray-700">
+                    <tr>
+                        <th class="px-4 py-3 text-left text-xs font-semibold text-gray-500 dark:text-gray-300 uppercase tracking-wider">Fecha</th>
+                        <th class="px-4 py-3 text-right text-xs font-semibold text-gray-500 dark:text-gray-300 uppercase tracking-wider">Ventas</th>
+                        <th class="px-4 py-3 text-right text-xs font-semibold text-gray-500 dark:text-gray-300 uppercase tracking-wider">Total</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-200 dark:divide-gray-700">
+                    @foreach($dailySales as $sale)
+                    <tr class="hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors">
+                        <td class="px-4 py-2.5 text-sm text-gray-900 dark:text-white">{{ \Carbon\Carbon::parse($sale->date)->format('d/m/Y') }}</td>
+                        <td class="px-4 py-2.5 text-sm text-gray-700 dark:text-gray-300 text-right">{{ $sale->count }}</td>
+                        <td class="px-4 py-2.5 text-sm text-gray-900 dark:text-white text-right font-medium">₲ {{ number_format($sale->total, 0, ',', '.') }}</td>
+                    </tr>
+                    @endforeach
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    @push('scripts')
+    <script>
+        const ctx = document.getElementById('dailyChart').getContext('2d');
+        new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: {!! json_encode($dailySales->pluck('date')->map(fn($d) => \Carbon\Carbon::parse($d)->format('d/m'))) !!},
+                datasets: [{
+                    label: 'Ventas ($)',
+                    data: {!! json_encode($dailySales->pluck('total')) !!},
+                    borderColor: 'rgb(99, 102, 241)',
+                    backgroundColor: 'rgba(99, 102, 241, 0.1)',
+                    fill: true,
+                    tension: 0.4,
+                    borderWidth: 2,
+                    pointRadius: 4,
+                    pointBackgroundColor: 'rgb(99, 102, 241)',
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { display: false } },
+                scales: {
+                    y: { beginAtZero: true, grid: { color: '#f3f4f6' } },
+                    x: { grid: { display: false } }
+                }
+            }
+        });
+    </script>
+    @endpush
+</x-app-layout>
