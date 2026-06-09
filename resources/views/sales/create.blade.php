@@ -1,164 +1,210 @@
 <x-app-layout>
     <x-slot name="header">Nueva Venta</x-slot>
 
-    <div class="max-w-4xl">
-        <form action="{{ route('sales.store') }}" method="POST" id="saleForm">
-            @csrf
+    @if(session('error'))
+        <div class="bg-red-50 dark:bg-red-900/30 border border-red-200 dark:border-red-800 text-red-700 dark:text-red-300 px-4 py-3 rounded-lg mb-6 text-sm">{{ session('error') }}</div>
+    @endif
+    @if($errors->any())
+        <div class="bg-red-50 dark:bg-red-900/30 border border-red-200 dark:border-red-800 text-red-700 dark:text-red-300 px-4 py-3 rounded-lg mb-6 text-sm">
+            @foreach($errors->all() as $error)
+                <p>{{ $error }}</p>
+            @endforeach
+        </div>
+    @endif
 
-            @if(session('error'))
-                <div class="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg mb-6 text-sm">{{ session('error') }}</div>
-            @endif
-            @if($errors->any())
-                <div class="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg mb-6 text-sm">
-                    @foreach($errors->all() as $error)
-                        <p>{{ $error }}</p>
-                    @endforeach
+    <form action="{{ route('sales.store') }}" method="POST" id="saleForm" class="lg:grid lg:grid-cols-5 lg:gap-6">
+        @csrf
+
+        {{-- Left: Product Browser --}}
+        <div class="lg:col-span-3 space-y-4 mb-6 lg:mb-0">
+
+            {{-- Customer Section --}}
+            <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 p-5">
+                <div class="flex items-center gap-3 mb-4">
+                    <div class="flex items-center justify-center w-8 h-8 rounded-lg bg-indigo-50 dark:bg-indigo-900/30 shrink-0">
+                        <svg class="w-4 h-4 text-indigo-600 dark:text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
+                        </svg>
+                    </div>
+                    <h3 class="text-sm font-semibold text-gray-900 dark:text-white">Cliente</h3>
                 </div>
-            @endif
 
-            {{-- Step 1: Customer --}}
-            <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-4">
-                <div class="flex items-center gap-2 mb-4">
-                    <span class="flex items-center justify-center w-7 h-7 bg-indigo-600 text-white rounded-full text-xs font-bold">1</span>
-                    <h3 class="text-lg font-semibold text-gray-900">Datos del Cliente</h3>
-                </div>
-
-                <label class="flex items-center gap-2 mb-4 text-sm text-gray-600">
-                    <input type="checkbox" id="existingCustomer" onchange="toggleCustomerFields()" class="rounded border-gray-300 text-indigo-600 shadow-sm focus:ring-indigo-500">
+                <label class="flex items-center gap-2 mb-3 text-sm text-gray-600 dark:text-gray-400">
+                    <input type="checkbox" id="existingCustomer" onchange="toggleCustomerFields()" class="rounded border-gray-300 dark:border-gray-600 text-indigo-600 shadow-sm focus:ring-indigo-500">
                     Cliente existente
                 </label>
 
-                <div id="existingCustomerFields" class="hidden mb-4">
-                    <x-input-label for="customer_search" value="Buscar cliente" />
-                    <x-text-input id="customer_search" type="text" class="mt-1 block w-full" placeholder="Nombre, cédula o empresa..." oninput="searchCustomers(this.value)" />
+                <div id="existingCustomerFields" class="hidden mb-3">
+                    <input type="text" id="customer_search" class="block w-full border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 rounded-lg text-sm focus:border-indigo-500 focus:ring-indigo-500" placeholder="Buscar por nombre, cédula/RUC, teléfono o empresa..." oninput="searchCustomers(this.value)">
                     <div id="customerResults" class="mt-2"></div>
-                    <select id="customer_id" name="customer_id" class="mt-2 block w-full border-gray-300 rounded-lg shadow-sm focus:border-indigo-500 focus:ring-indigo-500 hidden" onchange="fillCustomer(this)">
+                    <select id="customer_id" name="customer_id" class="mt-2 block w-full border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 rounded-lg text-sm focus:border-indigo-500 focus:ring-indigo-500 hidden" onchange="fillCustomer(this)">
                         <option value="">Seleccionar cliente</option>
                     </select>
                 </div>
 
-                <div id="newCustomerFields" class="grid grid-cols-1 md:grid-cols-2 gap-3">
-                    <div>
-                        <x-input-label for="customer_first_name" value="Nombre *" />
-                        <x-text-input id="customer_first_name" name="customer_first_name" type="text" class="mt-1 block w-full" required />
+                <div id="newCustomerFields" class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                    <div class="sm:col-span-3">
+                        <input type="text" name="customer_name" id="customer_name" placeholder="Nombre y Apellido *" required
+                            class="block w-full border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 rounded-lg text-sm focus:border-indigo-500 focus:ring-indigo-500">
                     </div>
                     <div>
-                        <x-input-label for="customer_last_name" value="Apellido *" />
-                        <x-text-input id="customer_last_name" name="customer_last_name" type="text" class="mt-1 block w-full" required />
+                        <input type="text" name="customer_document" placeholder="Cédula o RUC (opcional)"
+                            class="block w-full border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 rounded-lg text-sm focus:border-indigo-500 focus:ring-indigo-500">
                     </div>
                     <div>
-                        <x-input-label for="customer_document" value="Cédula" />
-                        <x-text-input id="customer_document" name="customer_document" type="text" class="mt-1 block w-full" />
+                        <input type="text" name="customer_phone" placeholder="Teléfono (opcional)"
+                            class="block w-full border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 rounded-lg text-sm focus:border-indigo-500 focus:ring-indigo-500">
                     </div>
                     <div>
-                        <x-input-label for="customer_company" value="Empresa" />
-                        <x-text-input id="customer_company" name="customer_company" type="text" class="mt-1 block w-full" />
+                        <input type="text" name="customer_company" placeholder="Empresa (opcional)"
+                            class="block w-full border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 rounded-lg text-sm focus:border-indigo-500 focus:ring-indigo-500">
                     </div>
                 </div>
             </div>
 
-            {{-- Step 2: Payment --}}
-            <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-4">
-                <div class="flex items-center gap-2 mb-4">
-                    <span class="flex items-center justify-center w-7 h-7 bg-indigo-600 text-white rounded-full text-xs font-bold">2</span>
-                    <h3 class="text-lg font-semibold text-gray-900">Tipo de Pago</h3>
-                </div>
-                <div class="flex gap-4">
-                    <label class="flex items-center gap-2 p-3 border border-gray-200 rounded-lg cursor-pointer hover:bg-indigo-50 hover:border-indigo-300 transition-colors has-[:checked]:bg-indigo-50 has-[:checked]:border-indigo-500 has-[:checked]:ring-1 has-[:checked]:ring-indigo-500">
-                        <input type="radio" name="payment_type" value="contado" checked class="text-indigo-600 focus:ring-indigo-500">
-                        <span class="font-medium text-gray-700">Contado</span>
-                    </label>
-                    <label class="flex items-center gap-2 p-3 border border-gray-200 rounded-lg cursor-pointer hover:bg-indigo-50 hover:border-indigo-300 transition-colors has-[:checked]:bg-indigo-50 has-[:checked]:border-indigo-500 has-[:checked]:ring-1 has-[:checked]:ring-indigo-500">
-                        <input type="radio" name="payment_type" value="credito" class="text-indigo-600 focus:ring-indigo-500">
-                        <span class="font-medium text-gray-700">Crédito</span>
-                    </label>
-                </div>
-            </div>
-
-            {{-- Step 3: Products --}}
-            <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-4">
-                <div class="flex items-center gap-2 mb-4">
-                    <span class="flex items-center justify-center w-7 h-7 bg-indigo-600 text-white rounded-full text-xs font-bold">3</span>
-                    <h3 class="text-lg font-semibold text-gray-900">Productos</h3>
-                </div>
-
-                <div id="productsContainer">
-                    <div class="product-row grid grid-cols-12 gap-3 mb-3 items-end">
-                        <div class="col-span-6">
-                            <x-input-label value="Producto" />
-                            <select name="items[0][product_id]" class="product-select mt-1 block w-full border-gray-300 rounded-lg shadow-sm focus:border-indigo-500 focus:ring-indigo-500" required>
-                                <option value="">Seleccionar...</option>
-                                @foreach($products as $product)
-                                    <option value="{{ $product->id }}" data-price="{{ $product->price }}" data-stock="{{ $product->stock }}">
-                                        {{ $product->name }} - ₲ {{ number_format($product->price, 0, ',', '.') }}
-                                    </option>
-                                @endforeach
-                            </select>
-                        </div>
-                        <div class="col-span-3">
-                            <x-input-label value="Cantidad" />
-                            <x-text-input type="number" name="items[0][quantity]" class="quantity-input mt-1 block w-full" min="1" value="1" required />
-                        </div>
-                        <div class="col-span-2">
-                            <x-input-label value="Subtotal" />
-                            <p class="item-subtotal mt-1 text-sm font-semibold text-indigo-600">$0.00</p>
-                        </div>
-                        <div class="col-span-1 flex items-end pb-1">
-                            <button type="button" onclick="removeProduct(this)" class="p-2 text-red-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors">
-                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
-                                </svg>
-                            </button>
-                        </div>
+            {{-- Product Browser --}}
+            <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 p-5">
+                <div class="flex items-center gap-3 mb-4">
+                    <div class="flex items-center justify-center w-8 h-8 rounded-lg bg-indigo-50 dark:bg-indigo-900/30 shrink-0">
+                        <svg class="w-4 h-4 text-indigo-600 dark:text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/>
+                        </svg>
                     </div>
+                    <h3 class="text-sm font-semibold text-gray-900 dark:text-white">Productos</h3>
+                    <span class="text-xs text-gray-400 dark:text-gray-500">{{ $products->count() }} disponibles</span>
                 </div>
 
-                <button type="button" onclick="addProduct()" class="mt-2 inline-flex items-center gap-1 text-sm text-indigo-600 hover:text-indigo-800 font-medium">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
+                {{-- Search --}}
+                <div class="relative mb-4">
+                    <svg class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
                     </svg>
-                    Agregar otro producto
-                </button>
+                    <input type="text" id="productSearch" placeholder="Buscar producto..." oninput="filterProducts(this.value)"
+                        class="w-full pl-9 pr-4 py-2.5 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 rounded-xl text-sm focus:border-indigo-500 focus:ring-indigo-500">
+                </div>
 
-                <div class="border-t border-gray-200 mt-4 pt-4 flex justify-end">
-                    <div class="text-right">
-                        <p class="text-sm text-gray-500">Subtotal: $<span id="subtotalAmount">0.00</span></p>
-                        <p class="text-sm text-gray-500">IVA (16%): $<span id="taxAmount">0.00</span></p>
-                        <p class="text-lg font-bold text-gray-900 mt-1">Total: $<span id="totalAmount">0.00</span></p>
+                {{-- Grid --}}
+                <div id="productGrid" class="grid grid-cols-2 sm:grid-cols-3 gap-2 max-h-[420px] overflow-y-auto pr-1">
+                    @foreach($products as $product)
+                    <button type="button" onclick="addToCart({{ $product->id }}, '{{ addslashes($product->name) }}', {{ $product->price }}, {{ $product->stock }})"
+                        class="product-card text-left p-3 rounded-xl border border-gray-100 dark:border-gray-700 hover:border-indigo-300 dark:hover:border-indigo-600 hover:bg-indigo-50 dark:hover:bg-indigo-900/20 transition-all duration-150 group hover:shadow-sm"
+                        data-name="{{ strtolower($product->name) }}" data-category="{{ strtolower($product->category?->name ?? '') }}">
+                        <div class="flex items-center justify-center w-full h-14 rounded-lg bg-gradient-to-br from-indigo-50 to-indigo-100 dark:from-indigo-900/30 dark:to-indigo-800/30 mb-2 group-hover:from-indigo-100 group-hover:to-indigo-200 dark:group-hover:from-indigo-900/50 dark:group-hover:to-indigo-800/50 transition-colors">
+                            <svg class="w-7 h-7 text-indigo-400 dark:text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/>
+                            </svg>
+                        </div>
+                        <p class="text-xs font-semibold text-gray-800 dark:text-gray-200 truncate leading-tight">{{ $product->name }}</p>
+                        <p class="text-xs font-bold text-indigo-600 dark:text-indigo-400 mt-0.5">₲ {{ number_format($product->price, 0, ',', '.') }}</p>
+                        <span class="inline-block mt-1 text-[10px] font-medium px-1.5 py-0.5 rounded {{ $product->stock > 10 ? 'bg-emerald-50 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400' : ($product->stock > 0 ? 'bg-amber-50 dark:bg-amber-900/30 text-amber-600 dark:text-amber-400' : 'bg-red-50 dark:bg-red-900/30 text-red-600 dark:text-red-400') }}">
+                            Stock: {{ $product->stock }}
+                        </span>
+                    </button>
+                    @endforeach
+                </div>
+
+                @if($products->isEmpty())
+                <div class="text-center py-8 text-gray-400 dark:text-gray-500 text-sm">
+                    No hay productos disponibles para la venta
+                </div>
+                @endif
+            </div>
+
+            {{-- Notes --}}
+            <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 p-5">
+                <div class="flex items-center gap-3">
+                    <div class="flex items-center justify-center w-8 h-8 rounded-lg bg-gray-50 dark:bg-gray-700 shrink-0">
+                        <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 8h10M7 12h4m1 8l-4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-3l-4 4z"/>
+                        </svg>
+                    </div>
+                    <input type="text" name="notes" placeholder="Notas adicionales (opcional)..."
+                        class="flex-1 border-0 bg-transparent text-sm text-gray-700 dark:text-gray-300 placeholder-gray-400 focus:ring-0 p-0">
+                </div>
+            </div>
+        </div>
+
+        {{-- Right: Cart & Checkout --}}
+        <div class="lg:col-span-2">
+            <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 p-5 sticky top-28">
+                <div class="flex items-center gap-3 mb-4">
+                    <div class="flex items-center justify-center w-8 h-8 rounded-lg bg-indigo-50 dark:bg-indigo-900/30 shrink-0">
+                        <svg class="w-4 h-4 text-indigo-600 dark:text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 100 4 2 2 0 000-4z"/>
+                        </svg>
+                    </div>
+                    <h3 class="text-sm font-semibold text-gray-900 dark:text-white">Carrito</h3>
+                    <span id="cartCount" class="text-xs bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 px-2 py-0.5 rounded-full font-medium">0</span>
+                </div>
+
+                {{-- Payment Type --}}
+                <div class="flex gap-2 mb-4">
+                    <label class="flex-1 flex items-center justify-center gap-1.5 p-2.5 border border-gray-200 dark:border-gray-600 rounded-xl cursor-pointer hover:bg-indigo-50 dark:hover:bg-indigo-900/20 transition-colors has-[:checked]:bg-indigo-50 dark:has-[:checked]:bg-indigo-900/30 has-[:checked]:border-indigo-500 has-[:checked]:ring-1 has-[:checked]:ring-indigo-500">
+                        <input type="radio" name="payment_type" value="contado" checked class="sr-only">
+                        <svg class="w-4 h-4 text-emerald-600 dark:text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z"/>
+                        </svg>
+                        <span class="text-xs font-medium text-gray-700 dark:text-gray-300">Contado</span>
+                    </label>
+                    <label class="flex-1 flex items-center justify-center gap-1.5 p-2.5 border border-gray-200 dark:border-gray-600 rounded-xl cursor-pointer hover:bg-indigo-50 dark:hover:bg-indigo-900/20 transition-colors has-[:checked]:bg-indigo-50 dark:has-[:checked]:bg-indigo-900/30 has-[:checked]:border-indigo-500 has-[:checked]:ring-1 has-[:checked]:ring-indigo-500">
+                        <input type="radio" name="payment_type" value="credito" class="sr-only">
+                        <svg class="w-4 h-4 text-amber-600 dark:text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"/>
+                        </svg>
+                        <span class="text-xs font-medium text-gray-700 dark:text-gray-300">Crédito</span>
+                    </label>
+                </div>
+
+                {{-- Cart Items --}}
+                <div id="cartItems" class="space-y-2 min-h-[120px] max-h-[280px] overflow-y-auto mb-4">
+                    <div id="emptyCart" class="text-center py-8 text-gray-400 dark:text-gray-500 text-sm">
+                        <svg class="w-10 h-10 mx-auto mb-2 text-gray-300 dark:text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 100 4 2 2 0 000-4z"/>
+                        </svg>
+                        Seleccioná productos para vender
                     </div>
                 </div>
-            </div>
 
-            {{-- Step 4: Notes --}}
-            <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-6">
-                <div class="flex items-center gap-2 mb-4">
-                    <span class="flex items-center justify-center w-7 h-7 bg-gray-400 text-white rounded-full text-xs font-bold">4</span>
-                    <h3 class="text-lg font-semibold text-gray-900">Notas (opcional)</h3>
+                {{-- Hidden inputs for cart --}}
+                <div id="hiddenInputs"></div>
+
+                {{-- Totals --}}
+                <div class="border-t border-gray-100 dark:border-gray-700 pt-4 space-y-2">
+                    <div class="flex justify-between text-sm">
+                        <span class="text-gray-500 dark:text-gray-400">Subtotal</span>
+                        <span class="text-gray-700 dark:text-gray-300 font-medium">₲ <span id="subtotalAmount">0</span></span>
+                    </div>
+                    <div class="flex justify-between text-sm">
+                        <span class="text-gray-500 dark:text-gray-400">IVA (10%)</span>
+                        <span class="text-gray-700 dark:text-gray-300 font-medium">₲ <span id="taxAmount">0</span></span>
+                    </div>
+                    <div class="flex justify-between text-base pt-2 border-t border-gray-100 dark:border-gray-700">
+                        <span class="font-bold text-gray-900 dark:text-white">Total</span>
+                        <span class="font-bold text-indigo-600 dark:text-indigo-400 text-lg">₲ <span id="totalAmount">0</span></span>
+                    </div>
                 </div>
-                <textarea name="notes" class="mt-1 block w-full border-gray-300 rounded-lg shadow-sm focus:border-indigo-500 focus:ring-indigo-500" rows="2" placeholder="Notas adicionales..."></textarea>
-            </div>
 
-            <div class="flex justify-end gap-3">
-                <a href="{{ route('sales.index') }}" class="inline-flex items-center px-4 py-2.5 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors text-sm font-medium">Cancelar</a>
-                <button type="submit" onclick="return validateStock()" class="inline-flex items-center gap-2 px-6 py-2.5 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors text-sm font-medium">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                {{-- Submit --}}
+                <button type="submit" onclick="return prepareSubmit()" id="submitBtn" disabled
+                    class="mt-5 w-full inline-flex items-center justify-center gap-2 px-6 py-3 bg-indigo-600 text-white rounded-xl hover:bg-indigo-700 transition-colors text-sm font-bold shadow-sm shadow-indigo-200 dark:shadow-none disabled:opacity-40 disabled:cursor-not-allowed">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
                     </svg>
-                    Registrar Venta
+                    Cobrar (₲ <span id="submitTotal">0</span>)
                 </button>
             </div>
-        </form>
-    </div>
+        </div>
+    </form>
 
     <script>
-        let productIndex = 1;
+        let cart = [];
+        let productIndex = 0;
 
         function toggleCustomerFields() {
             const checked = document.getElementById('existingCustomer').checked;
             document.getElementById('existingCustomerFields').classList.toggle('hidden', !checked);
             document.getElementById('newCustomerFields').classList.toggle('hidden', checked);
-            document.getElementById('customer_first_name').required = !checked;
-            document.getElementById('customer_last_name').required = !checked;
+            document.getElementById('customer_name').required = !checked;
             if (!checked) document.getElementById('customer_id').classList.add('hidden');
         }
 
@@ -174,12 +220,14 @@
                         const select = document.getElementById('customer_id');
                         select.innerHTML = '<option value="">Seleccionar cliente</option>';
                         if (data.length === 0) {
-                            container.innerHTML = '<p class="text-sm text-gray-500 mt-1">Sin resultados</p>';
+                            container.innerHTML = '<p class="text-sm text-gray-500 dark:text-gray-400 mt-1">Sin resultados</p>';
                             return;
                         }
                         container.innerHTML = '';
                         data.forEach(c => {
-                            select.innerHTML += `<option value="${c.id}">${c.first_name} ${c.last_name} - ${c.document || 'N/A'}</option>`;
+                            const doc = c.document || 'N/A';
+                            const phone = c.phone ? ` - Tel: ${c.phone}` : '';
+                            select.innerHTML += `<option value="${c.id}">${c.full_name} - ${doc}${phone}</option>`;
                         });
                         select.classList.remove('hidden');
                     });
@@ -188,62 +236,138 @@
 
         function fillCustomer(select) {
             if (select.value) {
-                document.getElementById('customer_first_name').value = select.options[select.selectedIndex].text.split(' - ')[0];
+                const name = select.options[select.selectedIndex].text.split(' - ')[0].trim();
+                document.getElementById('customer_name').value = name;
             }
         }
 
-        function addProduct() {
-            const container = document.getElementById('productsContainer');
-            const template = container.querySelector('.product-row').cloneNode(true);
-            template.querySelectorAll('[name]').forEach(el => {
-                el.name = el.name.replace(/\[\d+\]/, `[${productIndex}]`);
-                el.value = '';
+        function filterProducts(query) {
+            const q = query.toLowerCase().trim();
+            document.querySelectorAll('.product-card').forEach(card => {
+                const name = card.dataset.name || '';
+                const cat = card.dataset.category || '';
+                card.style.display = (!q || name.includes(q) || cat.includes(q)) ? '' : 'none';
             });
-            template.querySelector('.quantity-input').value = 1;
-            template.querySelector('.item-subtotal').textContent = '$0.00';
-            container.appendChild(template);
-            productIndex++;
+        }
+
+        function addToCart(id, name, price, stock) {
+            const existing = cart.find(item => item.id === id);
+            if (existing) {
+                if (existing.qty >= stock) {
+                    alert(`Stock máximo alcanzado para ${name}: ${stock} unidades`);
+                    return;
+                }
+                existing.qty++;
+            } else {
+                cart.push({ id, name, price, stock, qty: 1 });
+            }
+            renderCart();
+        }
+
+        function removeFromCart(index) {
+            cart.splice(index, 1);
+            renderCart();
+        }
+
+        function updateQty(index, delta) {
+            const item = cart[index];
+            const newQty = item.qty + delta;
+            if (newQty < 1) { removeFromCart(index); return; }
+            if (newQty > item.stock) {
+                alert(`Stock máximo: ${item.stock} unidades`);
+                return;
+            }
+            item.qty = newQty;
+            renderCart();
+        }
+
+        function renderCart() {
+            const container = document.getElementById('cartItems');
+            const empty = document.getElementById('emptyCart');
+            const hidden = document.getElementById('hiddenInputs');
+            const count = document.getElementById('cartCount');
+            const submitBtn = document.getElementById('submitBtn');
+
+            if (cart.length === 0) {
+                empty.style.display = '';
+                container.querySelectorAll('.cart-item').forEach(el => el.remove());
+                count.textContent = '0';
+                submitBtn.disabled = true;
+                updateTotals();
+                hidden.innerHTML = '';
+                return;
+            }
+
+            empty.style.display = 'none';
+            count.textContent = cart.reduce((sum, item) => sum + item.qty, 0);
+            submitBtn.disabled = false;
+
+            let html = '';
+            let hiddenHtml = '';
+            let idx = 0;
+
+            cart.forEach((item, i) => {
+                const subtotal = item.price * item.qty;
+                html += `
+                    <div class="cart-item flex items-center gap-2 p-2.5 bg-gray-50 dark:bg-gray-700/50 rounded-xl">
+                        <div class="flex-1 min-w-0">
+                            <p class="text-xs font-semibold text-gray-800 dark:text-gray-200 truncate">${item.name}</p>
+                            <p class="text-[10px] text-gray-400">₲ ${formatNumber(item.price)} c/u</p>
+                        </div>
+                        <div class="flex items-center gap-1">
+                            <button type="button" onclick="updateQty(${i}, -1)" class="w-6 h-6 flex items-center justify-center rounded-md bg-white dark:bg-gray-600 text-gray-500 hover:text-indigo-600 hover:bg-indigo-50 dark:hover:bg-indigo-900/30 transition-colors text-sm font-bold border border-gray-200 dark:border-gray-600">-</button>
+                            <span class="w-7 text-center text-xs font-bold text-gray-900 dark:text-white">${item.qty}</span>
+                            <button type="button" onclick="updateQty(${i}, 1)" class="w-6 h-6 flex items-center justify-center rounded-md bg-white dark:bg-gray-600 text-gray-500 hover:text-indigo-600 hover:bg-indigo-50 dark:hover:bg-indigo-900/30 transition-colors text-sm font-bold border border-gray-200 dark:border-gray-600">+</button>
+                        </div>
+                        <div class="text-right min-w-[70px]">
+                            <p class="text-xs font-bold text-indigo-600 dark:text-indigo-400">₲ ${formatNumber(subtotal)}</p>
+                        </div>
+                        <button type="button" onclick="removeFromCart(${i})" class="p-1 text-gray-300 hover:text-red-500 transition-colors shrink-0">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                            </svg>
+                        </button>
+                    </div>
+                `;
+                hiddenHtml += `<input type="hidden" name="items[${idx}][product_id]" value="${item.id}">`;
+                hiddenHtml += `<input type="hidden" name="items[${idx}][quantity]" value="${item.qty}">`;
+                idx++;
+            });
+
+            container.querySelectorAll('.cart-item').forEach(el => el.remove());
+            container.insertAdjacentHTML('beforeend', html);
+            hidden.innerHTML = hiddenHtml;
+            productIndex = idx;
             updateTotals();
         }
 
-        function removeProduct(btn) {
-            if (document.querySelectorAll('.product-row').length > 1) {
-                btn.closest('.product-row').remove();
-                updateTotals();
-            }
-        }
-
-        document.addEventListener('change', updateTotals);
-        document.addEventListener('input', updateTotals);
-
         function updateTotals() {
             let total = 0;
-            document.querySelectorAll('.product-row').forEach(row => {
-                const select = row.querySelector('.product-select');
-                const qty = parseInt(row.querySelector('.quantity-input').value) || 0;
-                const price = parseFloat(select.options[select.selectedIndex]?.dataset?.price || 0);
-                const subtotal = price * qty;
-                row.querySelector('.item-subtotal').textContent = `$${subtotal.toFixed(2)}`;
-                total += subtotal;
-            });
-            const tax = total * 0.16;
-            document.getElementById('subtotalAmount').textContent = total.toFixed(2);
-            document.getElementById('taxAmount').textContent = tax.toFixed(2);
-            document.getElementById('totalAmount').textContent = (total + tax).toFixed(2);
+            cart.forEach(item => { total += item.price * item.qty; });
+            const tax = Math.round(total * 0.10);
+            const grandTotal = total + tax;
+            document.getElementById('subtotalAmount').textContent = formatNumber(total);
+            document.getElementById('taxAmount').textContent = formatNumber(tax);
+            document.getElementById('totalAmount').textContent = formatNumber(grandTotal);
+            document.getElementById('submitTotal').textContent = formatNumber(grandTotal);
         }
 
-        function validateStock() {
-            let valid = true;
-            document.querySelectorAll('.product-row').forEach(row => {
-                const select = row.querySelector('.product-select');
-                const qty = parseInt(row.querySelector('.quantity-input').value) || 0;
-                const stock = parseInt(select.options[select.selectedIndex]?.dataset?.stock || 0);
-                if (qty > stock) {
-                    alert(`Stock insuficiente. Disponible: ${stock}`);
-                    valid = false;
+        function prepareSubmit() {
+            if (cart.length === 0) {
+                alert('Agregá al menos un producto al carrito');
+                return false;
+            }
+            for (const item of cart) {
+                if (item.qty > item.stock) {
+                    alert(`Stock insuficiente para ${item.name}. Disponible: ${item.stock}`);
+                    return false;
                 }
-            });
-            return valid;
+            }
+            return true;
+        }
+
+        function formatNumber(n) {
+            return n.toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.');
         }
     </script>
 </x-app-layout>

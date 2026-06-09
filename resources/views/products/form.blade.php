@@ -3,6 +3,30 @@
 
     <div class="max-w-3xl">
         <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 p-6 sm:p-8">
+            @if(!Auth::user()->isAdmin() && !isset($product))
+            <div class="flex items-start gap-3 mb-6 p-4 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-xl">
+                <svg class="w-5 h-5 text-amber-600 dark:text-amber-400 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                </svg>
+                <div>
+                    <p class="text-sm font-semibold text-amber-800 dark:text-amber-300">Precio pendiente de aprobación</p>
+                    <p class="text-xs text-amber-700 dark:text-amber-400 mt-0.5">El producto se creará con el precio que ingreses, pero quedará pendiente de aprobación por un administrador. No estará disponible en ventas hasta que sea aprobado.</p>
+                </div>
+            </div>
+            @endif
+
+            @if(isset($product) && $product->isPricePending())
+            <div class="flex items-start gap-3 mb-6 p-4 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-xl">
+                <svg class="w-5 h-5 text-amber-600 dark:text-amber-400 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                </svg>
+                <div>
+                    <p class="text-sm font-semibold text-amber-800 dark:text-amber-300">Este producto tiene el precio pendiente de aprobación</p>
+                    <p class="text-xs text-amber-700 dark:text-amber-400 mt-0.5">Al guardar los cambios, el precio deberá ser aprobado nuevamente por un administrador.</p>
+                </div>
+            </div>
+            @endif
+
             <form action="{{ isset($product) ? route('products.update', $product) : route('products.store') }}" method="POST">
                 @csrf
                 @if(isset($product)) @method('PUT') @endif

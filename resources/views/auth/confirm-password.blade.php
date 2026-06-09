@@ -1,5 +1,5 @@
 <x-guest-layout>
-    <div class="mb-4 text-sm text-gray-600">
+    <div class="mb-4 text-sm text-gray-600 dark:text-gray-300">
         Esta es un área segura. Por favor confirma tu contraseña antes de continuar.
     </div>
 

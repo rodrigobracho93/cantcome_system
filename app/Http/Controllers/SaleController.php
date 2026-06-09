@@ -6,6 +6,8 @@ use App\Models\Sale;
 use App\Models\SaleItem;
 use App\Models\Product;
 use App\Models\Customer;
+use App\Models\Caja;
+use App\Models\CajaMovimiento;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -14,7 +16,7 @@ class SaleController extends Controller
     public function index()
     {
         $user = auth()->user();
-        $sales = Sale::with(['user', 'customer', 'items.product'])
+        $sales = Sale::with(['user', 'customer', 'items.product', 'cajaMovimientos'])
             ->when(!$user->isAdmin(), fn($q) => $q->where('user_id', $user->id))
             ->orderByDesc('created_at')
             ->paginate(15);
@@ -24,7 +26,7 @@ class SaleController extends Controller
 
     public function create()
     {
-        $products = Product::with('category')->where('is_active', true)->where('stock', '>', 0)->orderBy('name')->get();
+        $products = Product::with('category')->where('is_active', true)->approved()->where('stock', '>', 0)->orderBy('name')->get();
         return view('sales.create', compact('products'));
     }
 
@@ -32,10 +34,10 @@ class SaleController extends Controller
     {
         $validated = $request->validate([
             'customer_id' => 'nullable|exists:customers,id',
-            'customer_first_name' => 'required_without:customer_id|string|max:255',
-            'customer_last_name' => 'required_without:customer_id|string|max:255',
+            'customer_name' => 'required_without:customer_id|string|max:255',
             'customer_document' => 'nullable|string|max:50',
             'customer_company' => 'nullable|string|max:255',
+            'customer_phone' => 'nullable|string|max:20',
             'payment_type' => 'required|in:contado,credito',
             'items' => 'required|array|min:1',
             'items.*.product_id' => 'required|exists:products,id',
@@ -47,12 +49,12 @@ class SaleController extends Controller
             if (!empty($validated['customer_id'])) {
                 $customerId = $validated['customer_id'];
             } else {
-                $customer = Customer::create([
-                    'first_name' => $validated['customer_first_name'],
-                    'last_name' => $validated['customer_last_name'],
-                    'document' => $validated['customer_document'] ?? null,
-                    'company' => $validated['customer_company'] ?? null,
-                ]);
+                    $customer = Customer::create([
+                        'name' => $validated['customer_name'],
+                        'document' => $validated['customer_document'] ?? null,
+                        'company' => $validated['customer_company'] ?? null,
+                        'phone' => $validated['customer_phone'] ?? null,
+                    ]);
                 $customerId = $customer->id;
             }
 
@@ -98,14 +100,46 @@ class SaleController extends Controller
                 $sale->items()->create($item);
             }
 
+            $cajaAbierta = Caja::where('estado', 'abierta')->first();
+            if ($cajaAbierta) {
+                CajaMovimiento::create([
+                    'caja_id' => $cajaAbierta->id,
+                    'tipo' => 'ingreso',
+                    'concepto' => "Venta #{$sale->id} - " . ($sale->customer->name ?? 'Sin cliente'),
+                    'monto' => $sale->total,
+                    'referencia_type' => Sale::class,
+                    'referencia_id' => $sale->id,
+                ]);
+
+                $cajaAbierta->increment('total_ingresos', $sale->total);
+                $cajaAbierta->increment('monto_final_esperado', $sale->total);
+            }
+
             return redirect()->route('sales.show', $sale)->with('success', 'Venta registrada exitosamente.');
         });
     }
 
     public function show(Sale $sale)
     {
-        $sale->load(['user', 'customer', 'items.product']);
+        $sale->load(['user', 'customer', 'items.product', 'cajaMovimientos.caja']);
         return view('sales.show', compact('sale'));
+    }
+
+    public function update(Request $request, Sale $sale)
+    {
+        if (!auth()->user()->isSuperAdmin()) {
+            abort(403);
+        }
+
+        $validated = $request->validate([
+            'payment_type' => 'required|in:contado,credito',
+            'customer_id' => 'nullable|exists:customers,id',
+            'notes' => 'nullable|string|max:500',
+        ]);
+
+        $sale->update($validated);
+
+        return redirect()->route('sales.show', $sale)->with('success', 'Venta actualizada exitosamente.');
     }
 
     public function destroy(Sale $sale)
@@ -114,8 +148,57 @@ class SaleController extends Controller
             abort(403);
         }
 
-        $sale->update(['status' => 'anulado']);
+        DB::transaction(function () use ($sale) {
+            foreach ($sale->items as $item) {
+                $item->product->increment('stock', $item->quantity);
+            }
+            $sale->update(['status' => 'anulado']);
+
+            $movimiento = CajaMovimiento::where('referencia_type', Sale::class)
+                ->where('referencia_id', $sale->id)
+                ->where('tipo', 'ingreso')
+                ->first();
+
+            if ($movimiento) {
+                $caja = $movimiento->caja;
+                if ($caja && $caja->estado === 'abierta') {
+                    CajaMovimiento::create([
+                        'caja_id' => $caja->id,
+                        'tipo' => 'egreso',
+                        'concepto' => "Anulación de venta #{$sale->id}",
+                        'monto' => $sale->total,
+                        'referencia_type' => Sale::class,
+                        'referencia_id' => $sale->id,
+                    ]);
+
+                    $caja->decrement('total_ingresos', $sale->total);
+                    $caja->decrement('monto_final_esperado', $sale->total);
+                }
+            }
+        });
 
         return redirect()->route('sales.index')->with('success', 'Venta anulada exitosamente.');
+    }
+
+    public function forceDestroy(Sale $sale)
+    {
+        if (!auth()->user()->isSuperAdmin()) {
+            abort(403);
+        }
+
+        DB::transaction(function () use ($sale) {
+            foreach ($sale->items as $item) {
+                $item->product->increment('stock', $item->quantity);
+            }
+
+            CajaMovimiento::where('referencia_type', Sale::class)
+                ->where('referencia_id', $sale->id)
+                ->delete();
+
+            $sale->items()->delete();
+            $sale->delete();
+        });
+
+        return redirect()->route('sales.index')->with('success', 'Venta eliminada permanentemente.');
     }
 }

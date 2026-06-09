@@ -15,6 +15,10 @@ class RoleMiddleware
             abort(403, 'Acceso no autorizado.');
         }
 
+        if ($user->isSuperAdmin()) {
+            return $next($request);
+        }
+
         $activeRole = session('active_role', $user->role);
 
         if (!in_array($activeRole, $roles)) {

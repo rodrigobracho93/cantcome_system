@@ -5,8 +5,8 @@
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
             </svg>
         </div>
-        <h1 class="text-xl font-bold text-gray-900">Crear Cuenta</h1>
-        <p class="text-sm text-gray-500 mt-1">Regístrate para usar CantCome</p>
+        <h1 class="text-xl font-bold text-gray-900 dark:text-white">Crear Cuenta</h1>
+        <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">Regístrate para usar CantCome</p>
     </div>
 
     <form method="POST" action="{{ route('register') }}">
@@ -27,7 +27,7 @@
         <div class="mt-4" x-data="{ show: false }">
             <x-input-label for="password" value="Contraseña" />
             <div class="relative mt-1">
-                <input id="password" class="block w-full pr-10 border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm" x-bind:type="show ? 'text' : 'password'" name="password" placeholder="••••••••" required autocomplete="new-password" />
+                <input id="password" class="block w-full pr-10 border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm" x-bind:type="show ? 'text' : 'password'" name="password" placeholder="••••••••" required autocomplete="new-password" />
                 <button type="button" @click="show = !show" class="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-400 hover:text-gray-600">
                     <svg x-show="!show" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
@@ -44,7 +44,7 @@
         <div class="mt-4" x-data="{ show: false }">
             <x-input-label for="password_confirmation" value="Confirmar contraseña" />
             <div class="relative mt-1">
-                <input id="password_confirmation" class="block w-full pr-10 border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm" x-bind:type="show ? 'text' : 'password'" name="password_confirmation" placeholder="••••••••" required autocomplete="new-password" />
+                <input id="password_confirmation" class="block w-full pr-10 border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm" x-bind:type="show ? 'text' : 'password'" name="password_confirmation" placeholder="••••••••" required autocomplete="new-password" />
                 <button type="button" @click="show = !show" class="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-400 hover:text-gray-600">
                     <svg x-show="!show" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
@@ -63,9 +63,9 @@
                 Registrarse
             </button>
 
-            <p class="text-center text-sm text-gray-500">
+            <p class="text-center text-sm text-gray-500 dark:text-gray-400">
                 ¿Ya tienes cuenta?
-                <a href="{{ route('login') }}" class="text-indigo-600 hover:text-indigo-800 font-medium">Iniciar Sesión</a>
+                <a href="{{ route('login') }}" class="text-indigo-600 dark:text-indigo-400 hover:text-indigo-800 dark:hover:text-indigo-300 font-medium">Iniciar Sesión</a>
             </p>
         </div>
     </form>

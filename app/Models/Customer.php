@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Customer extends Model
 {
-    protected $fillable = ['first_name', 'last_name', 'document', 'company', 'phone', 'email'];
+    protected $fillable = ['name', 'first_name', 'last_name', 'document', 'company', 'phone', 'email'];
 
     public function sales(): HasMany
     {
@@ -16,6 +16,6 @@ class Customer extends Model
 
     public function getFullNameAttribute(): string
     {
-        return "{$this->first_name} {$this->last_name}";
+        return $this->name ?? trim("{$this->first_name} {$this->last_name}");
     }
 }

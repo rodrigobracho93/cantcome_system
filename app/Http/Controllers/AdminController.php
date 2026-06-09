@@ -88,18 +88,58 @@ class AdminController extends Controller
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|email|unique:users,email',
+            'phone' => 'nullable|string|max:20',
             'password' => 'required|string|min:6',
-            'role' => 'required|in:cantina,admin',
+            'role' => 'required|in:cantina,admin,superadmin',
         ]);
 
         User::create([
             'name' => $validated['name'],
             'email' => $validated['email'],
+            'phone' => $validated['phone'],
             'password' => bcrypt($validated['password']),
             'role' => $validated['role'],
         ]);
 
         return redirect()->route('admin.users')->with('success', 'Usuario creado exitosamente.');
+    }
+
+    public function updateUser(Request $request, User $user)
+    {
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+            'email' => 'required|email|unique:users,email,' . $user->id,
+            'phone' => 'nullable|string|max:20',
+            'role' => 'required|in:cantina,admin,superadmin',
+            'password' => 'nullable|string|min:6',
+        ]);
+
+        $data = [
+            'name' => $validated['name'],
+            'email' => $validated['email'],
+            'phone' => $validated['phone'],
+            'role' => $validated['role'],
+        ];
+
+        if (!empty($validated['password'])) {
+            $data['password'] = bcrypt($validated['password']);
+        }
+
+        $user->update($data);
+
+        return redirect()->route('admin.users')->with('success', 'Usuario actualizado exitosamente.');
+    }
+
+    public function toggleUserStatus(User $user)
+    {
+        if ($user->id === auth()->id()) {
+            return back()->withErrors('No puedes desactivarte a ti mismo.');
+        }
+
+        $user->update(['is_active' => !$user->is_active]);
+
+        $status = $user->is_active ? 'activado' : 'desactivado';
+        return redirect()->route('admin.users')->with('success', "Usuario {$status} exitosamente.");
     }
 
     public function destroyUser(User $user)
@@ -108,8 +148,8 @@ class AdminController extends Controller
             return back()->withErrors('No puedes eliminarte a ti mismo.');
         }
 
-        $user->update(['is_active' => false]);
+        $user->delete();
 
-        return redirect()->route('admin.users')->with('success', 'Usuario desactivado exitosamente.');
+        return redirect()->route('admin.users')->with('success', 'Usuario eliminado permanentemente.');
     }
 }

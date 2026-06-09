@@ -21,16 +21,16 @@
                 <div class="flex items-center gap-2 mb-1">
                     <h2 class="text-xl sm:text-2xl font-bold text-white">¡Hola, <?php echo e(Auth::user()->name); ?>!</h2>
                     <?php $activeRole = session('active_role', Auth::user()->role); ?>
-                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold <?php echo e($activeRole === 'admin' ? 'bg-amber-400/20 text-amber-300' : 'bg-emerald-400/20 text-emerald-300'); ?>">
+                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold <?php echo e($activeRole === 'admin' ? 'bg-amber-400/20 text-white' : 'bg-emerald-400/20 text-white'); ?>">
                         <?php echo e($activeRole === 'admin' ? 'Administrador' : 'Cantina'); ?>
 
                     </span>
                 </div>
-                <p class="text-sm text-indigo-200"><?php echo e(now()->locale('es')->isoFormat('dddd, D [de] MMMM [del] YYYY')); ?></p>
+                <p class="text-sm text-white/80"><?php echo e(now()->locale('es')->isoFormat('dddd, D [de] MMMM [del] YYYY')); ?></p>
             </div>
             <div class="flex items-center gap-3">
                 <div class="text-right">
-                    <p class="text-[10px] font-medium text-indigo-300 uppercase tracking-wider">Inicio de sesión</p>
+                    <p class="text-[10px] font-medium text-white/70 uppercase tracking-wider">Inicio de sesión</p>
                     <p class="text-xs font-semibold text-white"><?php echo e(now()->format('H:i')); ?></p>
                 </div>
                 <div class="w-10 h-10 rounded-full ring-2 ring-white/30 overflow-hidden shrink-0">
@@ -67,9 +67,9 @@
                 </span>
                 <?php endif; ?>
             </div>
-            <p class="text-[11px] font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wider mb-0.5">Ventas Hoy</p>
+            <p class="text-[11px] font-semibold text-gray-500 dark:text-gray-300 uppercase tracking-wider mb-0.5">Ventas Hoy</p>
             <p class="text-2xl font-bold text-gray-900 dark:text-white"><?php echo e($data['salesToday']); ?></p>
-            <p class="text-[10px] text-gray-400 dark:text-gray-500 mt-1">vs. ayer</p>
+            <p class="text-[10px] text-gray-400 dark:text-gray-400 mt-1">vs. ayer</p>
         </div>
 
         
@@ -89,9 +89,9 @@
                 </span>
                 <?php endif; ?>
             </div>
-            <p class="text-[11px] font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wider mb-0.5">Ingresos Hoy</p>
+            <p class="text-[11px] font-semibold text-gray-500 dark:text-gray-300 uppercase tracking-wider mb-0.5">Ingresos Hoy</p>
             <p class="text-2xl font-bold text-emerald-600 dark:text-emerald-400">₲ <?php echo e(number_format($data['revenueToday'], 0, ',', '.')); ?></p>
-            <p class="text-[10px] text-gray-400 dark:text-gray-500 mt-1">vs. ayer</p>
+            <p class="text-[10px] text-gray-400 dark:text-gray-400 mt-1">vs. ayer</p>
         </div>
 
         
@@ -103,9 +103,9 @@
                     </svg>
                 </div>
             </div>
-            <p class="text-[11px] font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wider mb-0.5">Productos Activos</p>
+            <p class="text-[11px] font-semibold text-gray-500 dark:text-gray-300 uppercase tracking-wider mb-0.5">Productos Activos</p>
             <p class="text-2xl font-bold text-gray-900 dark:text-white"><?php echo e($data['totalProducts']); ?></p>
-            <p class="text-[10px] text-gray-400 dark:text-gray-500 mt-1">En catálogo</p>
+            <p class="text-[10px] text-gray-400 dark:text-gray-400 mt-1">En catálogo</p>
         </div>
 
         
@@ -126,9 +126,9 @@
                 </span>
                 <?php endif; ?>
             </div>
-            <p class="text-[11px] font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wider mb-0.5">Ventas Pendientes</p>
+            <p class="text-[11px] font-semibold text-gray-500 dark:text-gray-300 uppercase tracking-wider mb-0.5">Ventas Pendientes</p>
             <p class="text-2xl font-bold text-amber-600 dark:text-amber-400"><?php echo e($data['pendingSales']); ?></p>
-            <p class="text-[10px] text-gray-400 dark:text-gray-500 mt-1">Requieren atención</p>
+            <p class="text-[10px] text-gray-400 dark:text-gray-400 mt-1">Requieren atención</p>
         </div>
     </div>
 
@@ -143,7 +143,7 @@
             </div>
             <div>
                 <h3 class="text-base font-semibold text-gray-900 dark:text-white">Alertas de Stock</h3>
-                <p class="text-xs text-gray-400 dark:text-gray-500"><?php echo e($data['lowStockProducts']->count()); ?> producto<?php echo e($data['lowStockProducts']->count() !== 1 ? 's' : ''); ?> con stock bajo</p>
+                <p class="text-xs text-gray-500 dark:text-gray-400"><?php echo e($data['lowStockProducts']->count()); ?> producto<?php echo e($data['lowStockProducts']->count() !== 1 ? 's' : ''); ?> con stock bajo</p>
             </div>
         </div>
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
@@ -152,7 +152,7 @@
                 <p class="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2 truncate"><?php echo e($product->name); ?></p>
                 <div class="flex items-end justify-between">
                     <div>
-                        <p class="text-[10px] text-gray-400 dark:text-gray-500 uppercase">Stock</p>
+                        <p class="text-[10px] text-gray-500 dark:text-gray-400 uppercase">Stock</p>
                         <p class="text-lg font-bold <?php echo e($product->stock == 0 ? 'text-red-600 dark:text-red-400' : 'text-amber-600 dark:text-amber-400'); ?>"><?php echo e($product->stock); ?></p>
                     </div>
                     <div class="w-16">
@@ -181,10 +181,10 @@
                     </div>
                     <div>
                         <h3 class="text-sm font-semibold text-gray-900 dark:text-white">Ventas Semanales</h3>
-                        <p class="text-[11px] text-gray-400 dark:text-gray-500">Últimos 7 días</p>
+                        <p class="text-[11px] text-gray-500 dark:text-gray-400">Últimos 7 días</p>
                     </div>
                 </div>
-                <span class="text-xs text-gray-400 dark:text-gray-500 bg-gray-50 dark:bg-gray-700/50 px-2 py-1 rounded-lg">
+                <span class="text-xs text-gray-500 dark:text-gray-400 bg-gray-50 dark:bg-gray-700/50 px-2 py-1 rounded-lg">
                     <?php echo e($data['weeklySales']->sum('total') > 0 ? '₲ '.number_format($data['weeklySales']->sum('total'), 0, ',', '.') : 'Sin datos'); ?>
 
                 </span>
@@ -205,7 +205,7 @@
                     </div>
                     <div>
                         <h3 class="text-sm font-semibold text-gray-900 dark:text-white">Productos Más Vendidos</h3>
-                        <p class="text-[11px] text-gray-400 dark:text-gray-500">Top 5</p>
+                        <p class="text-[11px] text-gray-500 dark:text-gray-400">Top 5</p>
                     </div>
                 </div>
             </div>
@@ -215,7 +215,7 @@
                 <div class="relative">
                     <div class="flex items-center justify-between mb-1.5">
                         <div class="flex items-center gap-2.5 min-w-0">
-                            <span class="shrink-0 w-6 h-6 flex items-center justify-center rounded-lg text-xs font-bold <?php echo e($i === 0 ? 'bg-amber-400 text-white' : ($i === 1 ? 'bg-gray-300 text-gray-600 dark:bg-gray-600 dark:text-gray-300' : ($i === 2 ? 'bg-amber-700 text-white' : 'bg-gray-100 dark:bg-gray-700 text-gray-400 dark:text-gray-500'))); ?>"><?php echo e($i + 1); ?></span>
+                            <span class="shrink-0 w-6 h-6 flex items-center justify-center rounded-lg text-xs font-bold <?php echo e($i === 0 ? 'bg-amber-400 text-white' : ($i === 1 ? 'bg-gray-300 text-gray-600 dark:bg-gray-600 dark:text-gray-300' : ($i === 2 ? 'bg-amber-700 text-white' : 'bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-400'))); ?>"><?php echo e($i + 1); ?></span>
                             <span class="text-sm font-medium text-gray-700 dark:text-gray-300 truncate"><?php echo e($product->name); ?></span>
                         </div>
                         <span class="text-xs font-semibold text-indigo-600 dark:text-indigo-400 shrink-0 ml-3"><?php echo e($product->total_qty); ?> vendidos</span>
@@ -225,7 +225,7 @@
                     </div>
                 </div>
                 <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); if ($__empty_1): ?>
-                <p class="text-sm text-gray-400 dark:text-gray-500 py-8 text-center">Sin datos de ventas aún</p>
+                <p class="text-sm text-gray-500 dark:text-gray-400 py-8 text-center">Sin datos de ventas aún</p>
                 <?php endif; ?>
             </div>
         </div>
@@ -245,7 +245,7 @@
                 </div>
                 <div>
                     <h3 class="text-sm font-semibold text-gray-900 dark:text-white">Métodos de Pago</h3>
-                    <p class="text-[11px] text-gray-400 dark:text-gray-500">Últimos 30 días</p>
+                    <p class="text-[11px] text-gray-500 dark:text-gray-400">Últimos 30 días</p>
                 </div>
             </div>
             <div class="space-y-3">
@@ -266,7 +266,7 @@
                     <div class="w-full <?php echo e($paymentBgColors[$payment->payment_type] ?? 'bg-gray-100 dark:bg-gray-700'); ?> rounded-full h-2.5 overflow-hidden">
                         <div class="h-full rounded-full bg-gradient-to-r <?php echo e($paymentColors[$payment->payment_type] ?? 'from-gray-400 to-gray-500'); ?>" style="width: <?php echo e($pct); ?>%"></div>
                     </div>
-                    <p class="text-[10px] text-gray-400 dark:text-gray-500 mt-0.5">₲ <?php echo e(number_format($payment->total, 0, ',', '.')); ?> (<?php echo e($pct); ?>%)</p>
+                    <p class="text-[10px] text-gray-500 dark:text-gray-400 mt-0.5">₲ <?php echo e(number_format($payment->total, 0, ',', '.')); ?> (<?php echo e($pct); ?>%)</p>
                 </div>
                 <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
             </div>
@@ -282,7 +282,7 @@
                 </div>
                 <div>
                     <h3 class="text-sm font-semibold text-gray-900 dark:text-white">Acciones Rápidas</h3>
-                    <p class="text-[11px] text-gray-400 dark:text-gray-500">Accesos directos</p>
+                    <p class="text-[11px] text-gray-500 dark:text-gray-400">Accesos directos</p>
                 </div>
             </div>
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -346,7 +346,7 @@
             </div>
             <div>
                 <h3 class="text-sm font-semibold text-gray-900 dark:text-white">Acciones Rápidas</h3>
-                <p class="text-[11px] text-gray-400 dark:text-gray-500">Accesos directos</p>
+                <p class="text-[11px] text-gray-500 dark:text-gray-400">Accesos directos</p>
             </div>
         </div>
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">

@@ -27,7 +27,8 @@
         </div>
     </div>
 
-    <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden">
+    {{-- Desktop: table --}}
+    <div class="hidden md:block bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden">
         <div class="px-4 py-3 border-b border-gray-200 dark:border-gray-700">
             <h3 class="text-lg font-semibold text-gray-900 dark:text-white">Detalle por Fecha</h3>
         </div>
@@ -53,8 +54,28 @@
         </div>
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    {{-- Mobile: cards --}}
+    <div class="block md:hidden space-y-2">
+        <h3 class="text-sm font-semibold text-gray-900 dark:text-white mb-3">Detalle por Fecha</h3>
+        @forelse($dailySales as $sale)
+        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-4">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-sm font-medium text-gray-900 dark:text-white">{{ \Carbon\Carbon::parse($sale->date)->format('d/m/Y') }}</p>
+                    <p class="text-xs text-gray-500 dark:text-gray-400">{{ $sale->count }} venta{{ $sale->count !== 1 ? 's' : '' }}</p>
+                </div>
+                <p class="text-sm font-bold text-indigo-600 dark:text-indigo-400">₲ {{ number_format($sale->total, 0, ',', '.') }}</p>
+            </div>
+        </div>
+        @empty
+        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-8 text-center">
+            <p class="text-sm text-gray-400 dark:text-gray-500">Sin datos de ventas</p>
+        </div>
+        @endforelse
+    </div>
+
     @push('scripts')
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
         const ctx = document.getElementById('dailyChart').getContext('2d');
         new Chart(ctx, {
@@ -62,7 +83,7 @@
             data: {
                 labels: {!! json_encode($dailySales->pluck('date')->map(fn($d) => \Carbon\Carbon::parse($d)->format('d/m'))) !!},
                 datasets: [{
-                    label: 'Ventas ($)',
+                    label: 'Ventas (₲)',
                     data: {!! json_encode($dailySales->pluck('total')) !!},
                     borderColor: 'rgb(99, 102, 241)',
                     backgroundColor: 'rgba(99, 102, 241, 0.1)',
