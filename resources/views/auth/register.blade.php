@@ -24,6 +24,12 @@
             <x-input-error :messages="$errors->get('email')" class="mt-2" />
         </div>
 
+        <div class="mt-4">
+            <x-input-label for="phone" value="Teléfono" />
+            <x-text-input id="phone" class="block mt-1 w-full" type="tel" name="phone" :value="old('phone')" placeholder="+595 981 234 567" />
+            <x-input-error :messages="$errors->get('phone')" class="mt-2" />
+        </div>
+
         <div class="mt-4" x-data="{ show: false }">
             <x-input-label for="password" value="Contraseña" />
             <div class="relative mt-1">

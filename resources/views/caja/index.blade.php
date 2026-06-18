@@ -10,12 +10,18 @@
 
     {{-- Caja abierta alert --}}
     @if($cajaAbierta)
-    <div class="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 text-amber-700 dark:text-amber-300 px-4 py-3 rounded-lg mb-6 text-sm flex items-center gap-2">
+    <div class="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 text-amber-700 dark:text-amber-300 px-4 py-3 rounded-lg mb-6 text-sm flex flex-wrap items-center gap-x-2 gap-y-1">
         <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
         <span>Caja abierta desde {{ $cajaAbierta->fecha_apertura->format('d/m/Y H:i') }}</span>
         <span class="hidden sm:inline text-amber-500">·</span>
         <span class="font-medium">{{ $cajaAbierta->ventas_count ?? 0 }} venta{{ ($cajaAbierta->ventas_count ?? 0) !== 1 ? 's' : '' }} vinculada{{ ($cajaAbierta->ventas_count ?? 0) !== 1 ? 's' : '' }}</span>
-        <a href="{{ route('caja.show', $cajaAbierta) }}" class="font-semibold underline ml-auto">Ir a la caja</a>
+        <div class="flex items-center gap-2 ml-auto">
+            <a href="{{ route('caja.show', $cajaAbierta) }}" class="font-semibold underline">Ir a la caja</a>
+            <a href="{{ route('caja.show', $cajaAbierta) . '#cerrar' }}" class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-amber-700 bg-amber-100 dark:text-amber-300 dark:bg-amber-900/40 hover:bg-amber-200 dark:hover:bg-amber-900/60 rounded-lg transition-colors">
+                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m0 0v2m0-2h2m-2 0H10"/></svg>
+                Cerrar Caja
+            </a>
+        </div>
     </div>
     @endif
 

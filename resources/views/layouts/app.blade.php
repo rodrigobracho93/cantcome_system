@@ -7,6 +7,7 @@
     <title>{{ config('app.name', 'CantCome') }}</title>
     <link rel="preconnect" href="https://fonts.bunny.net">
     <link href="https://fonts.bunny.net/css?family=figtree:400,500,600&display=swap" rel="stylesheet" />
+    <link rel="icon" type="image/png" href="{{ asset('logo.png') }}">
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     @stack('styles')
     <script>
@@ -38,11 +39,7 @@
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
                 </svg>
             </button>
-            <div class="flex items-center justify-center w-7 h-7 bg-indigo-500 rounded-lg">
-                <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
-                </svg>
-            </div>
+            <img src="{{ asset('logo.png') }}" alt="CantCome" class="h-8 w-auto">
             <span class="text-base font-bold text-white tracking-tight">CantCome</span>
         </div>
 
@@ -168,6 +165,13 @@
 
         {{-- Main content --}}
         <div class="relative flex flex-col flex-1 min-h-screen bg-gradient-to-br from-gray-50 to-indigo-50 dark:from-gray-900 dark:to-indigo-950">
+
+            {{-- Page header --}}
+            @isset($header)
+            <div class="px-4 sm:px-8 lg:px-10 pt-4 sm:pt-6 lg:pt-8 pb-0">
+                {{ $header }}
+            </div>
+            @endisset
 
             {{-- Content --}}
             <main class="flex-1 p-4 sm:p-8 lg:p-10">

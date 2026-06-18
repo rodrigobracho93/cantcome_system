@@ -10,6 +10,7 @@ use App\Models\Caja;
 use App\Models\CajaMovimiento;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Barryvdh\DomPDF\Facade\Pdf;
 
 class SaleController extends Controller
 {
@@ -34,7 +35,7 @@ class SaleController extends Controller
     {
         $validated = $request->validate([
             'customer_id' => 'nullable|exists:customers,id',
-            'customer_name' => 'required_without:customer_id|string|max:255',
+            'customer_name' => 'nullable|string|max:255',
             'customer_document' => 'nullable|string|max:50',
             'customer_company' => 'nullable|string|max:255',
             'customer_phone' => 'nullable|string|max:20',
@@ -48,14 +49,16 @@ class SaleController extends Controller
         return DB::transaction(function () use ($validated, $request) {
             if (!empty($validated['customer_id'])) {
                 $customerId = $validated['customer_id'];
-            } else {
-                    $customer = Customer::create([
-                        'name' => $validated['customer_name'],
-                        'document' => $validated['customer_document'] ?? null,
-                        'company' => $validated['customer_company'] ?? null,
-                        'phone' => $validated['customer_phone'] ?? null,
-                    ]);
+            } elseif (!empty($validated['customer_name'])) {
+                $customer = Customer::create([
+                    'name' => $validated['customer_name'],
+                    'document' => $validated['customer_document'] ?? null,
+                    'company' => $validated['customer_company'] ?? null,
+                    'phone' => $validated['customer_phone'] ?? null,
+                ]);
                 $customerId = $customer->id;
+            } else {
+                $customerId = null;
             }
 
             $subtotal = 0;
@@ -200,5 +203,30 @@ class SaleController extends Controller
         });
 
         return redirect()->route('sales.index')->with('success', 'Venta eliminada permanentemente.');
+    }
+
+    public function receiptPdf(Sale $sale)
+    {
+        $sale->load(['user', 'customer', 'items.product']);
+        $pdf = Pdf::loadView('sales.recibo', compact('sale'));
+        $pdf->setPaper([0, 0, 300, 600], 'portrait');
+        return $pdf->stream("recibo-{$sale->id}.pdf");
+    }
+
+    public function receiptPdfUrl(Sale $sale)
+    {
+        $sale->load(['user', 'customer', 'items.product']);
+        $pdf = Pdf::loadView('sales.recibo', compact('sale'));
+        $pdf->setPaper([0, 0, 300, 600], 'portrait');
+
+        $dir = public_path('pdf');
+        if (!is_dir($dir)) {
+            @mkdir($dir, 0755, true);
+        }
+        $pdf->save("{$dir}/recibo-{$sale->id}.pdf");
+
+        return response()->json([
+            'url' => url("pdf/recibo-{$sale->id}.pdf"),
+        ]);
     }
 }

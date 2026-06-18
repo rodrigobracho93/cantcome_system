@@ -8,6 +8,16 @@
         <div class="bg-red-50 dark:bg-red-900/30 border border-red-200 dark:border-red-800 text-red-700 dark:text-red-300 px-4 py-3 rounded-lg mb-6 text-sm">{{ $errors->first() }}</div>
     @endif
 
+    {{-- Cerrar Caja quick button --}}
+    @if($caja->estado === 'abierta')
+    <div class="flex justify-end mb-4">
+        <a href="#cerrar-form" class="inline-flex items-center gap-2 px-4 py-2.5 text-sm font-medium text-white bg-amber-600 hover:bg-amber-700 rounded-lg transition-colors shadow-sm">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m0 0v2m0-2h2m-2 0H10"/></svg>
+            Cerrar Caja
+        </a>
+    </div>
+    @endif
+
     {{-- Summary Cards --}}
     <div class="grid grid-cols-2 lg:grid-cols-5 gap-4 mb-6">
         <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-4">
@@ -107,7 +117,7 @@
         </div>
 
         {{-- Close Caja --}}
-        <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 p-5">
+        <div id="cerrar" class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 p-5">
             @if($caja->estado === 'abierta')
             <div class="flex items-center gap-3 mb-5">
                 <div class="flex items-center justify-center w-9 h-9 rounded-xl bg-gradient-to-br from-amber-500 to-amber-600 shadow-sm">
@@ -118,7 +128,7 @@
                     <p class="text-[11px] text-gray-500 dark:text-gray-400">Ingresa el monto final contado para cerrar</p>
                 </div>
             </div>
-            <form action="{{ route('caja.close', $caja) }}" method="POST">
+            <form id="cerrar-form" action="{{ route('caja.close', $caja) }}" method="POST">
                 @csrf
                 <div class="mb-4">
                     <x-input-label value="Monto Final Real (₲)" />

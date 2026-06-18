@@ -27,7 +27,7 @@
                 <p class="text-[11px] text-gray-500 dark:text-gray-400">Crear un nuevo usuario en el sistema</p>
             </div>
         </div>
-        <form action="{{ route('admin.users.store') }}" method="POST">
+        <form action="{{ route('admin.users.store') }}" method="POST" enctype="multipart/form-data">
             @csrf
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                 <div>
@@ -56,6 +56,96 @@
                         @endif
                     </select>
                 </div>
+                <div x-data="{
+                    photoName: '',
+                    cameraOpen: false,
+                    stream: null,
+                    photoBlob: null,
+                    initCamera() {
+                        if (!navigator.mediaDevices?.getUserMedia) { alert('Tu dispositivo no soporta acceso a la cámara.'); return }
+                        navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } })
+                            .then(s => { this.stream = s; this.cameraOpen = true; this.$nextTick(() => { const v = document.getElementById('camera-preview'); if (v) v.srcObject = s }) })
+                            .catch(() => alert('No se pudo acceder a la cámara. Verifica los permisos.'))
+                    },
+                    stopCamera() {
+                        if (this.stream) { this.stream.getTracks().forEach(t => t.stop()); this.stream = null }
+                        this.cameraOpen = false
+                    },
+                    capturePhoto() {
+                        const v = document.getElementById('camera-preview')
+                        if (!v) return
+                        const c = document.createElement('canvas')
+                        c.width = v.videoWidth; c.height = v.videoHeight
+                        c.getContext('2d').drawImage(v, 0, 0)
+                        c.toBlob(b => {
+                            const f = new File([b], 'foto-capturada.jpg', { type: 'image/jpeg' })
+                            const dt = new DataTransfer(); dt.items.add(f)
+                            document.getElementById('photo_result').files = dt.files
+                            this.photoName = f.name
+                            this.photoBlob = b
+                            this.stopCamera()
+                        }, 'image/jpeg', 0.9)
+                    }
+                }">
+                    <x-input-label value="Foto de perfil" />
+                    <div class="mt-1 flex items-center gap-2">
+                        <template x-if="!photoName">
+                            <div class="w-12 h-12 rounded-full bg-gray-100 dark:bg-gray-700 flex items-center justify-center text-gray-400 shrink-0">
+                                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
+                            </div>
+                        </template>
+                        <template x-if="photoName">
+                            <div class="w-12 h-12 rounded-full bg-emerald-100 dark:bg-emerald-900/30 flex items-center justify-center text-emerald-600 dark:text-emerald-400 shrink-0">
+                                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+                            </div>
+                        </template>
+                        <div class="flex flex-wrap gap-2">
+                            <button type="button" @click="initCamera()"
+                                class="inline-flex items-center gap-1.5 px-3 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors text-sm font-medium">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+                                Tomar foto
+                            </button>
+                            <button type="button"
+                                onclick="document.getElementById('file_input').click()"
+                                class="inline-flex items-center gap-1.5 px-3 py-2 bg-gray-200 dark:bg-gray-600 text-gray-800 dark:text-white rounded-lg hover:bg-gray-300 dark:hover:bg-gray-500 transition-colors text-sm font-medium">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+                                Seleccionar archivo
+                            </button>
+                        </div>
+                        <span class="text-xs text-gray-400 dark:text-gray-500" x-text="photoName || 'Sin foto'"></span>
+                    </div>
+                    <input id="file_input" type="file" name="profile_photo" accept="image/*"
+                        class="hidden" @change="photoName = $event.target.files[0]?.name || ''">
+                    <input id="photo_result" type="file" name="profile_photo" accept="image/*" class="hidden">
+
+                    {{-- Camera modal --}}
+                    <div x-show="cameraOpen" x-cloak
+                        class="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4"
+                        @keydown.escape.window="stopCamera()">
+                        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-2xl overflow-hidden w-full max-w-lg" @click.outside="stopCamera()">
+                            <div class="p-4 border-b border-gray-200 dark:border-gray-700 flex items-center justify-between">
+                                <h3 class="text-lg font-semibold text-gray-900 dark:text-white">Tomar foto</h3>
+                                <button type="button" @click="stopCamera()" class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                                </button>
+                            </div>
+                            <div class="relative bg-black">
+                                <video id="camera-preview" autoplay playsinline class="w-full aspect-[4/3] object-cover"></video>
+                            </div>
+                            <div class="p-4 flex justify-center gap-3">
+                                <button type="button" @click="capturePhoto()"
+                                    class="inline-flex items-center gap-2 px-6 py-3 bg-indigo-600 text-white rounded-full hover:bg-indigo-700 transition-colors text-sm font-medium shadow-lg">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+                                    Capturar
+                                </button>
+                                <button type="button" @click="stopCamera()"
+                                    class="inline-flex items-center gap-2 px-4 py-3 bg-gray-200 dark:bg-gray-600 text-gray-800 dark:text-white rounded-full hover:bg-gray-300 dark:hover:bg-gray-500 transition-colors text-sm font-medium">
+                                    Cancelar
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
                 <div class="flex items-end">
                     <button type="submit" class="w-full inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors text-sm font-medium">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
@@ -68,7 +158,7 @@
 
     {{-- Desktop: table --}}
     <div class="hidden md:block bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden">
-        <div class="flex items-center justify-between px-6 py-4 border-b border-gray-200 dark:border-gray-700">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 px-6 py-4 border-b border-gray-200 dark:border-gray-700">
             <div class="flex items-center gap-3">
                 <div class="flex items-center justify-center w-8 h-8 rounded-lg bg-gradient-to-br from-indigo-500 to-indigo-600 shadow-sm">
                     <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -80,6 +170,17 @@
                     <p class="text-[11px] text-gray-500 dark:text-gray-400">{{ $users->count() }} usuario{{ $users->count() !== 1 ? 's' : '' }} registrados</p>
                 </div>
             </div>
+            <form method="GET" action="{{ route('admin.users') }}" class="relative">
+                <svg class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+                </svg>
+                <input type="text" name="search" value="{{ request('search') }}" placeholder="Buscar usuarios..." class="pl-9 pr-8 py-2 w-56 text-sm border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 rounded-lg focus:border-indigo-500 focus:ring-indigo-500">
+                @if(request('search'))
+                <a href="{{ route('admin.users') }}" class="absolute right-2 top-1/2 -translate-y-1/2 p-1 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 rounded transition-colors">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                </a>
+                @endif
+            </form>
         </div>
         <div class="overflow-x-auto">
             <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
@@ -97,8 +198,12 @@
                     <tr class="hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors {{ !$user->is_active ? 'opacity-60' : '' }}">
                         <td class="px-4 py-3 whitespace-nowrap">
                             <div class="flex items-center gap-3">
-                                <div class="w-8 h-8 rounded-full bg-gradient-to-br from-indigo-400 to-indigo-600 flex items-center justify-center text-white text-xs font-bold shrink-0">
+                                <div class="w-8 h-8 rounded-full bg-gradient-to-br from-indigo-400 to-indigo-600 flex items-center justify-center text-white text-xs font-bold shrink-0 overflow-hidden">
+                                    @if($user->profile_photo_url)
+                                    <img src="{{ $user->profile_photo_url }}" alt="{{ $user->name }}" class="w-full h-full object-cover">
+                                    @else
                                     {{ substr($user->name, 0, 1) }}
+                                    @endif
                                 </div>
                                 <div>
                                     <p class="text-sm font-medium text-gray-900 dark:text-white">{{ $user->name }}</p>
@@ -124,12 +229,14 @@
                             </span>
                         </td>
                         <td class="px-4 py-3 whitespace-nowrap text-right">
-                            @if($user->id !== Auth::id())
                             <div class="flex items-center justify-end gap-1">
+                                @if(Auth::user()->isSuperAdmin() || $user->role !== 'superadmin')
                                 <button @click="$dispatch('open-edit-modal', { id: {{ $user->id }}, name: '{{ $user->name }}', email: '{{ $user->email }}', phone: '{{ $user->phone ?? '' }}', role: '{{ $user->role }}' })"
                                     class="p-2 text-gray-400 hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-indigo-900/20 rounded-lg transition-colors" title="Editar">
                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
                                 </button>
+                                @endif
+                                @if($user->id !== Auth::id() && (Auth::user()->isSuperAdmin() || $user->role !== 'superadmin'))
                                 <form action="{{ route('admin.users.toggle-status', $user) }}" method="POST" class="inline" onsubmit="return confirm('¿{{ $user->is_active ? 'Desactivar' : 'Activar' }} a {{ $user->name }}?')">
                                     @csrf @method('PATCH')
                                     <button type="submit" class="p-2 {{ $user->is_active ? 'text-gray-400 hover:text-amber-600 dark:hover:text-amber-400 hover:bg-amber-50 dark:hover:bg-amber-900/20' : 'text-gray-400 hover:text-emerald-600 dark:hover:text-emerald-400 hover:bg-emerald-50 dark:hover:bg-emerald-900/20' }} rounded-lg transition-colors" title="{{ $user->is_active ? 'Desactivar' : 'Activar' }}">
@@ -142,7 +249,8 @@
                                         </svg>
                                     </button>
                                 </form>
-                                @if(Auth::user()->isSuperAdmin())
+                                @endif
+                                @if(Auth::user()->isSuperAdmin() && $user->id !== Auth::id())
                                 <form action="{{ route('admin.users.destroy', $user) }}" method="POST" class="inline" onsubmit="return confirm('¿Eliminar permanentemente a {{ $user->name }}? Esta acción no se puede deshacer.')">
                                     @csrf @method('DELETE')
                                     <button type="submit" class="p-2 text-gray-400 hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors" title="Eliminar permanentemente">
@@ -151,9 +259,6 @@
                                 </form>
                                 @endif
                             </div>
-                            @else
-                            <span class="text-[11px] text-gray-400 italic">Tú</span>
-                            @endif
                         </td>
                     </tr>
                     @empty
@@ -188,8 +293,12 @@
         <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-4 {{ !$user->is_active ? 'opacity-60' : '' }}">
             <div class="flex items-center justify-between mb-3">
                 <div class="flex items-center gap-3 min-w-0">
-                    <div class="w-8 h-8 rounded-full bg-gradient-to-br from-indigo-400 to-indigo-600 flex items-center justify-center text-white text-xs font-bold shrink-0">
+                    <div class="w-8 h-8 rounded-full bg-gradient-to-br from-indigo-400 to-indigo-600 flex items-center justify-center text-white text-xs font-bold shrink-0 overflow-hidden">
+                        @if($user->profile_photo_url)
+                        <img src="{{ $user->profile_photo_url }}" alt="{{ $user->name }}" class="w-full h-full object-cover">
+                        @else
                         {{ substr($user->name, 0, 1) }}
+                        @endif
                     </div>
                     <div class="min-w-0">
                         <p class="text-sm font-semibold text-gray-900 dark:text-white truncate">{{ $user->name }}</p>
@@ -197,11 +306,13 @@
                     </div>
                 </div>
                 <div class="flex items-center gap-1 shrink-0">
-                    @if($user->id !== Auth::id())
+                    @if(Auth::user()->isSuperAdmin() || $user->role !== 'superadmin')
                     <button @click="$dispatch('open-edit-modal', { id: {{ $user->id }}, name: '{{ $user->name }}', email: '{{ $user->email }}', phone: '{{ $user->phone ?? '' }}', role: '{{ $user->role }}' })"
                         class="p-1.5 text-gray-400 hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-indigo-900/20 rounded-lg transition-colors" title="Editar">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
                     </button>
+                    @endif
+                    @if($user->id !== Auth::id() && (Auth::user()->isSuperAdmin() || $user->role !== 'superadmin'))
                     <form action="{{ route('admin.users.toggle-status', $user) }}" method="POST" onsubmit="return confirm('¿{{ $user->is_active ? 'Desactivar' : 'Activar' }} a {{ $user->name }}?')">
                         @csrf @method('PATCH')
                         <button type="submit" class="p-1.5 {{ $user->is_active ? 'text-gray-400 hover:text-amber-600 dark:hover:text-amber-400 hover:bg-amber-50 dark:hover:bg-amber-900/20' : 'text-gray-400 hover:text-emerald-600 dark:hover:text-emerald-400 hover:bg-emerald-50 dark:hover:bg-emerald-900/20' }} rounded-lg transition-colors" title="{{ $user->is_active ? 'Desactivar' : 'Activar' }}">
@@ -214,16 +325,14 @@
                             </svg>
                         </button>
                     </form>
-                    @if(Auth::user()->isSuperAdmin())
+                    @endif
+                    @if(Auth::user()->isSuperAdmin() && $user->id !== Auth::id())
                     <form action="{{ route('admin.users.destroy', $user) }}" method="POST" onsubmit="return confirm('¿Eliminar permanentemente a {{ $user->name }}?')">
                         @csrf @method('DELETE')
                         <button type="submit" class="p-1.5 text-gray-400 hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors" title="Eliminar">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
                         </button>
                     </form>
-                    @endif
-                    @else
-                    <span class="text-xs text-gray-400 italic">Tú</span>
                     @endif
                 </div>
             </div>
@@ -292,7 +401,7 @@
                 </button>
             </div>
             {{-- Body --}}
-            <form method="POST" class="p-6" x-bind:action="`{{ url('admin/users') }}/${user.id}`">
+            <form method="POST" enctype="multipart/form-data" class="p-6" x-bind:action="`{{ url('admin/users') }}/${user.id}`">
                 @csrf
                 <input type="hidden" name="_method" value="PUT">
                 <div class="space-y-4">
@@ -330,6 +439,95 @@
                             <option value="superadmin">Superadmin</option>
                             @endif
                         </select>
+                    </div>
+                    {{-- Edit photo --}}
+                    <div x-data="{
+                        photoName: '',
+                        cameraOpen: false,
+                        stream: null,
+                        initCamera() {
+                            if (!navigator.mediaDevices?.getUserMedia) { alert('Tu dispositivo no soporta acceso a la cámara.'); return }
+                            navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } })
+                                .then(s => { this.stream = s; this.cameraOpen = true; this.$nextTick(() => { const v = document.getElementById('edit-camera-preview'); if (v) v.srcObject = s }) })
+                                .catch(() => alert('No se pudo acceder a la cámara. Verifica los permisos.'))
+                        },
+                        stopCamera() {
+                            if (this.stream) { this.stream.getTracks().forEach(t => t.stop()); this.stream = null }
+                            this.cameraOpen = false
+                        },
+                        capturePhoto() {
+                            const v = document.getElementById('edit-camera-preview')
+                            if (!v) return
+                            const c = document.createElement('canvas')
+                            c.width = v.videoWidth; c.height = v.videoHeight
+                            c.getContext('2d').drawImage(v, 0, 0)
+                            c.toBlob(b => {
+                                const f = new File([b], 'foto-capturada.jpg', { type: 'image/jpeg' })
+                                const dt = new DataTransfer(); dt.items.add(f)
+                                document.getElementById('edit_photo_result').files = dt.files
+                                this.photoName = f.name
+                                this.stopCamera()
+                            }, 'image/jpeg', 0.9)
+                        }
+                    }">
+                        <x-input-label value="Foto de perfil" />
+                        <div class="mt-1 flex items-center gap-2">
+                            <template x-if="!photoName">
+                                <div class="w-12 h-12 rounded-full bg-gray-100 dark:bg-gray-700 flex items-center justify-center text-gray-400 shrink-0">
+                                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
+                                </div>
+                            </template>
+                            <template x-if="photoName">
+                                <div class="w-12 h-12 rounded-full bg-emerald-100 dark:bg-emerald-900/30 flex items-center justify-center text-emerald-600 dark:text-emerald-400 shrink-0">
+                                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+                                </div>
+                            </template>
+                            <div class="flex flex-wrap gap-2">
+                                <button type="button" @click="initCamera()"
+                                    class="inline-flex items-center gap-1.5 px-3 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors text-sm font-medium">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+                                    Tomar foto
+                                </button>
+                                <button type="button"
+                                    onclick="document.getElementById('edit_file_input').click()"
+                                    class="inline-flex items-center gap-1.5 px-3 py-2 bg-gray-200 dark:bg-gray-600 text-gray-800 dark:text-white rounded-lg hover:bg-gray-300 dark:hover:bg-gray-500 transition-colors text-sm font-medium">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+                                    Seleccionar archivo
+                                </button>
+                            </div>
+                            <span class="text-xs text-gray-400 dark:text-gray-500" x-text="photoName || 'Sin foto'"></span>
+                        </div>
+                        <input id="edit_file_input" type="file" name="profile_photo" accept="image/*"
+                            class="hidden" @change="photoName = $event.target.files[0]?.name || ''">
+                        <input id="edit_photo_result" type="file" name="profile_photo" accept="image/*" class="hidden">
+
+                        {{-- Camera modal --}}
+                        <div x-show="cameraOpen" x-cloak
+                            class="fixed inset-0 z-[60] flex items-center justify-center bg-black/70 p-4"
+                            @keydown.escape.window="stopCamera()">
+                            <div class="bg-white dark:bg-gray-800 rounded-xl shadow-2xl overflow-hidden w-full max-w-lg" @click.outside="stopCamera()">
+                                <div class="p-4 border-b border-gray-200 dark:border-gray-700 flex items-center justify-between">
+                                    <h3 class="text-lg font-semibold text-gray-900 dark:text-white">Tomar foto</h3>
+                                    <button type="button" @click="stopCamera()" class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors">
+                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                                    </button>
+                                </div>
+                                <div class="relative bg-black">
+                                    <video id="edit-camera-preview" autoplay playsinline class="w-full aspect-[4/3] object-cover"></video>
+                                </div>
+                                <div class="p-4 flex justify-center gap-3">
+                                    <button type="button" @click="capturePhoto()"
+                                        class="inline-flex items-center gap-2 px-6 py-3 bg-indigo-600 text-white rounded-full hover:bg-indigo-700 transition-colors text-sm font-medium shadow-lg">
+                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+                                        Capturar
+                                    </button>
+                                    <button type="button" @click="stopCamera()"
+                                        class="inline-flex items-center gap-2 px-4 py-3 bg-gray-200 dark:bg-gray-600 text-gray-800 dark:text-white rounded-full hover:bg-gray-300 dark:hover:bg-gray-500 transition-colors text-sm font-medium">
+                                        Cancelar
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
                 <div class="flex items-center justify-end gap-3 mt-6 pt-4 border-t border-gray-200 dark:border-gray-700">

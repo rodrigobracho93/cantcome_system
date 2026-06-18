@@ -7,6 +7,7 @@
         <title>{{ config('app.name', 'CantCome') }}</title>
         <link rel="preconnect" href="https://fonts.bunny.net">
         <link href="https://fonts.bunny.net/css?family=figtree:400,500,600&display=swap" rel="stylesheet" />
+        <link rel="icon" type="image/png" href="{{ asset('logo.png') }}">
         @vite(['resources/css/app.css', 'resources/js/app.js'])
         <script>
             if (localStorage.getItem('darkMode') === 'true') document.documentElement.classList.add('dark');

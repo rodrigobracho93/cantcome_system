@@ -27,24 +27,58 @@
                         </svg>
                     </div>
                     <h3 class="text-sm font-semibold text-gray-900 dark:text-white">Cliente</h3>
+                    <span id="customerSelectedBadge" class="hidden ml-auto inline-flex items-center gap-1 px-2 py-0.5 bg-emerald-50 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-300 rounded-full text-xs font-medium">
+                        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+                        Seleccionado
+                    </span>
                 </div>
 
-                <label class="flex items-center gap-2 mb-3 text-sm text-gray-600 dark:text-gray-400">
-                    <input type="checkbox" id="existingCustomer" onchange="toggleCustomerFields()" class="rounded border-gray-300 dark:border-gray-600 text-indigo-600 shadow-sm focus:ring-indigo-500">
-                    Cliente existente
-                </label>
+                <input type="hidden" name="customer_id" id="customer_id" value="">
 
-                <div id="existingCustomerFields" class="hidden mb-3">
-                    <input type="text" id="customer_search" class="block w-full border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 rounded-lg text-sm focus:border-indigo-500 focus:ring-indigo-500" placeholder="Buscar por nombre, cédula/RUC, teléfono o empresa..." oninput="searchCustomers(this.value)">
-                    <div id="customerResults" class="mt-2"></div>
-                    <select id="customer_id" name="customer_id" class="mt-2 block w-full border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 rounded-lg text-sm focus:border-indigo-500 focus:ring-indigo-500 hidden" onchange="fillCustomer(this)">
-                        <option value="">Seleccionar cliente</option>
-                    </select>
+                {{-- Search --}}
+                <div class="relative mb-3">
+                    <svg class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+                    </svg>
+                    <input type="text" id="customerSearch" autocomplete="off"
+                        class="w-full pl-9 pr-4 py-2.5 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 rounded-xl text-sm focus:border-indigo-500 focus:ring-indigo-500"
+                        placeholder="Buscar cliente por nombre, cédula, teléfono o empresa..."
+                        oninput="searchCustomers(this.value)"
+                        @if(!empty($customerId)) value="{{ $customers->find($customerId)?->name ?? '' }}" @endif>
                 </div>
 
-                <div id="newCustomerFields" class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                {{-- Search results dropdown --}}
+                <div id="customerResults" class="hidden mb-3 border border-gray-200 dark:border-gray-600 rounded-xl divide-y divide-gray-100 dark:divide-gray-700 max-h-48 overflow-y-auto shadow-sm"></div>
+
+                {{-- Selected customer --}}
+                <div id="selectedCustomer" class="hidden mb-3">
+                    <div class="p-3 bg-indigo-50 dark:bg-indigo-900/20 rounded-xl border border-indigo-200 dark:border-indigo-800">
+                        <div class="flex items-center justify-between mb-2">
+                            <div class="flex items-center gap-2">
+                                <div class="w-8 h-8 rounded-full bg-indigo-100 dark:bg-indigo-800 flex items-center justify-center text-indigo-600 dark:text-indigo-300 font-bold text-xs shrink-0">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
+                                </div>
+                                <p id="selectedCustomerName" class="text-sm font-semibold text-gray-900 dark:text-white"></p>
+                            </div>
+                            <button type="button" onclick="clearSelectedCustomer()" class="p-1 text-gray-400 hover:text-red-500 transition-colors shrink-0" title="Quitar cliente">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                            </button>
+                        </div>
+                        <div id="selectedCustomerDetails" class="grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs text-gray-600 dark:text-gray-400"></div>
+                    </div>
+                </div>
+
+                {{-- Create new customer toggle --}}
+                <div class="flex items-center gap-2 mb-3">
+                    <input type="checkbox" id="createNewCustomer" onchange="toggleNewCustomer()"
+                        class="rounded border-gray-300 dark:border-gray-600 text-indigo-600 shadow-sm focus:ring-indigo-500">
+                    <label for="createNewCustomer" class="text-sm text-gray-600 dark:text-gray-400 cursor-pointer">Crear cliente nuevo</label>
+                </div>
+
+                {{-- New customer fields --}}
+                <div id="newCustomerFields" class="hidden grid grid-cols-1 sm:grid-cols-3 gap-3">
                     <div class="sm:col-span-3">
-                        <input type="text" name="customer_name" id="customer_name" placeholder="Nombre y Apellido *" required
+                        <input type="text" name="customer_name" id="customer_name" placeholder="Nombre y Apellido *"
                             class="block w-full border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 rounded-lg text-sm focus:border-indigo-500 focus:ring-indigo-500">
                     </div>
                     <div>
@@ -200,45 +234,80 @@
         let cart = [];
         let productIndex = 0;
 
-        function toggleCustomerFields() {
-            const checked = document.getElementById('existingCustomer').checked;
-            document.getElementById('existingCustomerFields').classList.toggle('hidden', !checked);
-            document.getElementById('newCustomerFields').classList.toggle('hidden', checked);
-            document.getElementById('customer_name').required = !checked;
-            if (!checked) document.getElementById('customer_id').classList.add('hidden');
-        }
-
         let searchTimeout;
         function searchCustomers(query) {
             clearTimeout(searchTimeout);
-            if (query.length < 2) return;
+            const results = document.getElementById('customerResults');
+            if (query.length < 2) { results.classList.add('hidden'); results.innerHTML = ''; return; }
             searchTimeout = setTimeout(() => {
                 fetch(`/customers/search?q=${encodeURIComponent(query)}`)
                     .then(r => r.json())
                     .then(data => {
-                        const container = document.getElementById('customerResults');
-                        const select = document.getElementById('customer_id');
-                        select.innerHTML = '<option value="">Seleccionar cliente</option>';
                         if (data.length === 0) {
-                            container.innerHTML = '<p class="text-sm text-gray-500 dark:text-gray-400 mt-1">Sin resultados</p>';
+                            results.innerHTML = '<div class="px-3 py-2 text-sm text-gray-500 dark:text-gray-400">Sin resultados</div>';
+                            results.classList.remove('hidden');
                             return;
                         }
-                        container.innerHTML = '';
+                        results.innerHTML = '';
                         data.forEach(c => {
-                            const doc = c.document || 'N/A';
-                            const phone = c.phone ? ` - Tel: ${c.phone}` : '';
-                            select.innerHTML += `<option value="${c.id}">${c.full_name} - ${doc}${phone}</option>`;
+                            const doc = c.document ? `<span class="text-gray-400">${c.document}</span>` : '';
+                            const phone = c.phone ? `<span class="text-gray-400 ml-2">📞 ${c.phone}</span>` : '';
+                            const div = document.createElement('div');
+                            div.className = 'px-3 py-2.5 text-sm hover:bg-indigo-50 dark:hover:bg-indigo-900/20 cursor-pointer transition-colors flex items-center justify-between';
+                            div.innerHTML = `<div><span class="font-medium text-gray-900 dark:text-white">${c.name}</span> ${doc}</div><div class="text-xs text-gray-400">${phone}</div>`;
+                            div.onclick = () => selectCustomer(c);
+                            results.appendChild(div);
                         });
-                        select.classList.remove('hidden');
+                        results.classList.remove('hidden');
                     });
             }, 300);
         }
 
-        function fillCustomer(select) {
-            if (select.value) {
-                const name = select.options[select.selectedIndex].text.split(' - ')[0].trim();
-                document.getElementById('customer_name').value = name;
-            }
+        function selectCustomer(c) {
+            document.getElementById('customer_id').value = c.id;
+            document.getElementById('selectedCustomerName').textContent = c.name;
+            const details = document.getElementById('selectedCustomerDetails');
+            details.innerHTML = '';
+            const fields = [
+                { label: 'Cédula/RUC', value: c.document },
+                { label: 'Teléfono', value: c.phone },
+                { label: 'Empresa', value: c.company },
+                { label: 'Email', value: c.email },
+            ];
+            fields.forEach(f => {
+                if (f.value) {
+                    const div = document.createElement('div');
+                    div.className = 'flex flex-col';
+                    div.innerHTML = `<span class="text-[10px] uppercase tracking-wider text-gray-400 dark:text-gray-500">${f.label}</span><span class="font-medium text-gray-700 dark:text-gray-300">${f.value}</span>`;
+                    details.appendChild(div);
+                }
+            });
+            document.getElementById('selectedCustomer').classList.remove('hidden');
+            document.getElementById('customerSelectedBadge').classList.remove('hidden');
+            document.getElementById('customerResults').classList.add('hidden');
+            document.getElementById('customerResults').innerHTML = '';
+            document.getElementById('customerSearch').value = c.name;
+            document.getElementById('createNewCustomer').disabled = true;
+            document.getElementById('createNewCustomer').checked = false;
+            document.getElementById('newCustomerFields').classList.add('hidden');
+            document.getElementById('customer_name').required = false;
+            document.getElementById('customer_name').value = '';
+            document.querySelectorAll('#newCustomerFields input').forEach(inp => { if (inp.name.startsWith('customer_')) inp.value = '' });
+        }
+
+        function clearSelectedCustomer() {
+            document.getElementById('customer_id').value = '';
+            document.getElementById('selectedCustomer').classList.add('hidden');
+            document.getElementById('customerSelectedBadge').classList.add('hidden');
+            document.getElementById('customerSearch').value = '';
+            document.getElementById('createNewCustomer').disabled = false;
+        }
+
+        function toggleNewCustomer() {
+            const checked = document.getElementById('createNewCustomer').checked;
+            document.getElementById('newCustomerFields').classList.toggle('hidden', !checked);
+            document.getElementById('customer_name').required = checked;
+            if (checked) clearSelectedCustomer();
         }
 
         function filterProducts(query) {
