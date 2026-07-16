@@ -23,8 +23,8 @@
 </head>
 <body>
     <div class="header">
-        <img src="{{ public_path('logo.png') }}" alt="CantCome" style="height: 45px; width: auto; margin-bottom: 6px;">
-        <h1>CantCome</h1>
+        <img src="{{ public_path($systemLogo ?? 'logo.png') }}" alt="{{ $systemName ?? 'CantCome' }}" style="height: 45px; width: auto; margin-bottom: 6px;">
+        <h1>{{ $systemName ?? 'CantCome' }}</h1>
         <p>Almuerzos - Reporte Mensual</p>
         <p>{{ \Carbon\Carbon::create()->month($mes)->locale('es')->monthName }} {{ $anio }}</p>
     </div>
@@ -81,7 +81,7 @@
     @endif
 
     <div class="footer">
-        <p>CantCome - Sistema de Gestión</p>
+        <p>{{ $systemName ?? 'CantCome' }} - Sistema de Gestión</p>
     </div>
 </body>
 </html>

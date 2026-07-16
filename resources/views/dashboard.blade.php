@@ -4,9 +4,38 @@
     </x-slot>
 
     {{-- Greeting Card --}}
+    <style>
+        @keyframes fc-zoom {
+            0%, 100% { transform: scale(1) translateY(0); opacity: 0.85; }
+            50% { transform: scale(1.25) translateY(-20px); opacity: 0.4; }
+        }
+        .fc-a, .fc-b, .fc-c, .fc-d, .fc-e { animation: fc-zoom 6s ease-in-out infinite; }
+        @keyframes flag-tick {
+            0%, 100% { transform: rotate(0deg); }
+            50% { transform: rotate(8deg); }
+        }
+        .flag-bounce { animation: flag-tick 1s steps(2, end) infinite; display: inline-block; transform-origin: center bottom; }
+    </style>
     <div class="relative overflow-hidden mb-8 rounded-2xl bg-gradient-to-br from-indigo-600 via-indigo-700 to-indigo-900 p-6 sm:p-8">
         <div class="absolute top-0 right-0 w-64 h-64 bg-white/5 rounded-full -translate-y-1/2 translate-x-1/2"></div>
         <div class="absolute bottom-0 left-1/3 w-48 h-48 bg-indigo-500/20 rounded-full translate-y-1/2"></div>
+
+        {{-- Floating food elements --}}
+        <div class="absolute inset-0 pointer-events-none overflow-hidden select-none" aria-hidden="true">
+            <span class="fc-a absolute text-8xl will-change-transform" style="top: -5%; right: 5%; animation-delay: 0s">🍽️</span>
+            <span class="fc-b absolute text-6xl will-change-transform" style="top: 30%; left: 4%; animation-delay: 0.8s">☕</span>
+            <span class="fc-c absolute text-7xl will-change-transform" style="bottom: 8%; right: 6%; animation-delay: 2s">🍴</span>
+            <span class="fc-d absolute text-6xl will-change-transform" style="top: 10%; left: 25%; animation-delay: 1.2s">🥘</span>
+            <span class="fc-e absolute text-5xl will-change-transform" style="bottom: 15%; left: 10%; animation-delay: 3.5s">🧂</span>
+            <span class="fc-a absolute text-7xl will-change-transform" style="top: 50%; right: 3%; animation-delay: 1.5s">🥄</span>
+            <span class="fc-c absolute text-6xl will-change-transform" style="bottom: 0%; left: 40%; animation-delay: 2.5s">🍳</span>
+            <span class="fc-b absolute text-8xl will-change-transform" style="top: -8%; right: 22%; animation-delay: 0.3s">🫕</span>
+            <span class="fc-d absolute text-5xl will-change-transform" style="top: 12%; right: 40%; animation-delay: 4s">🧊</span>
+            <span class="fc-e absolute text-6xl will-change-transform" style="bottom: 25%; right: 18%; animation-delay: 3s">🥤</span>
+            <span class="fc-a absolute text-5xl will-change-transform" style="top: 8%; left: 8%; animation-delay: 5s">🫖</span>
+            <span class="fc-b absolute text-7xl will-change-transform" style="bottom: 5%; right: 35%; animation-delay: 1.8s">🍜</span>
+        </div>
+
         <div class="relative z-10 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div>
                 <div class="flex items-center gap-2 mb-1">
@@ -18,19 +47,26 @@
                 </div>
                 <p class="text-sm text-white/80">{{ now()->locale('es')->isoFormat('dddd, D [de] MMMM [del] YYYY') }}</p>
             </div>
-            <div class="flex items-center gap-3">
+            <div class="flex items-center gap-3 ml-auto sm:ml-0">
                 <div class="text-right">
-                    <p class="text-[10px] font-medium text-white/70 uppercase tracking-wider">Inicio de sesión</p>
-                    <p class="text-xs font-semibold text-white">{{ now()->format('H:i') }}</p>
+                    <p class="text-[10px] font-medium text-white/70 uppercase tracking-wider">Paraguay</p>
+                    <p id="liveClock" class="text-xs font-semibold text-white font-mono tracking-wider">--:--</p>
                 </div>
-                <div class="w-10 h-10 rounded-full ring-2 ring-white/30 overflow-hidden shrink-0">
-                    @if (Auth::user()->profile_photo_url)
-                        <img src="{{ Auth::user()->profile_photo_url }}" alt="{{ Auth::user()->name }}" class="w-full h-full object-cover">
-                    @else
-                        <div class="w-full h-full bg-indigo-500 text-white flex items-center justify-center text-sm font-bold">
-                            {{ substr(Auth::user()->name, 0, 1) }}
-                        </div>
-                    @endif
+                <div class="flex items-center gap-1.5">
+                    <span class="flag-bounce inline-block" style="animation-delay: 0s; width: 32px; height: 22px; border-radius: 3px; overflow: hidden; border: 1px solid rgba(255,255,255,0.3); box-shadow: 0 1px 3px rgba(0,0,0,0.3);">
+                        <svg viewBox="0 0 320 220" xmlns="http://www.w3.org/2000/svg" width="100%" height="100%">
+                            <rect width="320" height="73.3" y="0" fill="#D52B1E"/>
+                            <rect width="320" height="73.4" y="73.3" fill="#FFFFFF"/>
+                            <rect width="320" height="73.3" y="146.7" fill="#0038A8"/>
+                            <circle cx="160" cy="110" r="22" fill="none" stroke="#D52B1E" stroke-width="3"/>
+                            <circle cx="160" cy="110" r="16" fill="#D52B1E"/>
+                            <circle cx="160" cy="110" r="13" fill="#FFFFFF"/>
+                            <path d="M152,105 Q160,95 168,105 Q160,115 152,105Z" fill="#0038A8"/>
+                            <circle cx="155" cy="107" r="1.5" fill="#D52B1E"/>
+                            <circle cx="165" cy="107" r="1.5" fill="#D52B1E"/>
+                            <circle cx="160" cy="112" r="1.5" fill="#D52B1E"/>
+                        </svg>
+                    </span>
                 </div>
             </div>
         </div>
@@ -428,5 +464,20 @@
         });
     </script>
     @endif
+    <script>
+        (function() {
+            const el = document.getElementById('liveClock');
+            if (!el) return;
+            function tick() {
+                const now = new Date();
+                const h = String(now.getHours()).padStart(2, '0');
+                const m = String(now.getMinutes()).padStart(2, '0');
+                const s = String(now.getSeconds()).padStart(2, '0');
+                el.textContent = h + ':' + m + ':' + s;
+            }
+            tick();
+            setInterval(tick, 1000);
+        })();
+    </script>
     @endpush
 </x-app-layout>

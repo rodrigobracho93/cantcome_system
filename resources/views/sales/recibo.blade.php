@@ -25,8 +25,8 @@
 </head>
 <body>
     <div class="header">
-        <img src="{{ public_path('logo.png') }}" alt="Logo" style="width: 60px; height: auto; margin-bottom: 4px;">
-        <h1>CantCome</h1>
+        <img src="{{ public_path($systemLogo ?? 'logo.png') }}" alt="Logo" style="width: 60px; height: auto; margin-bottom: 4px;">
+        <h1>{{ $systemName ?? 'CantCome' }}</h1>
         <p>Cantina & Comedor</p>
         <p>Recibo #{{ $sale->id }}</p>
         <p>{{ $sale->created_at->locale('es')->isoFormat('D [de] MMM [del] YYYY - H:mm') }}</p>
@@ -79,7 +79,7 @@
 
     <div class="footer">
         <p>¡Gracias por su compra!</p>
-        <p>CantCome - Sistema de Gestión</p>
+        <p>{{ $systemName ?? 'CantCome' }} - Sistema de Gestión</p>
     </div>
 </body>
 </html>

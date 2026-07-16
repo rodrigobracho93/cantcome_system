@@ -6,7 +6,7 @@
             </svg>
         </div>
         <h1 class="text-xl font-bold text-gray-900 dark:text-white">Crear Cuenta</h1>
-        <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">Regístrate para usar CantCome</p>
+        <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">Regístrate para usar {{ $systemName ?? 'CantCome' }}</p>
     </div>
 
     <form method="POST" action="{{ route('register') }}">

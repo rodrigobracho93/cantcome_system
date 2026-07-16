@@ -9,8 +9,8 @@
     @endif
 
     <div class="text-center mb-6">
-        <img src="{{ asset('logo.png') }}" alt="CantCome" class="h-16 w-auto mx-auto mb-3">
-        <h1 class="text-xl font-bold text-gray-900 dark:text-white">CantCome</h1>
+        <img src="{{ asset($systemLogo ?? 'logo.png') }}" alt="{{ $systemName ?? 'CantCome' }}" class="h-16 w-auto mx-auto mb-3">
+        <h1 class="text-xl font-bold text-gray-900 dark:text-white">{{ $systemName ?? 'CantCome' }}</h1>
         <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">Inicia sesión para continuar</p>
     </div>
 

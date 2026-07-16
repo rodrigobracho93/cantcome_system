@@ -106,6 +106,14 @@
                     </div>
                     <h3 class="text-sm font-semibold text-gray-900 dark:text-white">Productos</h3>
                     <span class="text-xs text-gray-400 dark:text-gray-500">{{ $products->count() }} disponibles</span>
+                    <div class="ml-auto flex items-center bg-gray-100 dark:bg-gray-700 rounded-lg p-0.5">
+                        <button type="button" onclick="toggleProductView('cards')" id="viewCardsBtn" class="view-toggle-btn p-1.5 rounded-md transition-colors" title="Vista tarjetas">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zm10 0a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zm10 0a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"/></svg>
+                        </button>
+                        <button type="button" onclick="toggleProductView('list')" id="viewListBtn" class="view-toggle-btn p-1.5 rounded-md transition-colors" title="Vista lista">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>
+                        </button>
+                    </div>
                 </div>
 
                 {{-- Search --}}
@@ -117,7 +125,7 @@
                         class="w-full pl-9 pr-4 py-2.5 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 rounded-xl text-sm focus:border-indigo-500 focus:ring-indigo-500">
                 </div>
 
-                {{-- Grid --}}
+                {{-- Cards Grid --}}
                 <div id="productGrid" class="grid grid-cols-2 sm:grid-cols-3 gap-2 max-h-[420px] overflow-y-auto pr-1">
                     @foreach($products as $product)
                     <button type="button" onclick="addToCart({{ $product->id }}, '{{ addslashes($product->name) }}', {{ $product->price }}, {{ $product->stock }})"
@@ -133,6 +141,32 @@
                         <span class="inline-block mt-1 text-[10px] font-medium px-1.5 py-0.5 rounded {{ $product->stock > 10 ? 'bg-emerald-50 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400' : ($product->stock > 0 ? 'bg-amber-50 dark:bg-amber-900/30 text-amber-600 dark:text-amber-400' : 'bg-red-50 dark:bg-red-900/30 text-red-600 dark:text-red-400') }}">
                             Stock: {{ $product->stock }}
                         </span>
+                    </button>
+                    @endforeach
+                </div>
+
+                {{-- List View --}}
+                <div id="productList" class="hidden max-h-[420px] overflow-y-auto pr-1 space-y-1.5">
+                    @foreach($products as $product)
+                    <button type="button" onclick="addToCart({{ $product->id }}, '{{ addslashes($product->name) }}', {{ $product->price }}, {{ $product->stock }})"
+                        class="product-card-list product-card w-full flex items-center gap-3 p-3 text-left rounded-xl border border-gray-100 dark:border-gray-700 hover:border-indigo-300 dark:hover:border-indigo-600 hover:bg-indigo-50 dark:hover:bg-indigo-900/20 transition-all duration-150 group"
+                        data-name="{{ strtolower($product->name) }}" data-category="{{ strtolower($product->category?->name ?? '') }}">
+                        <div class="flex items-center justify-center w-10 h-10 rounded-lg bg-gradient-to-br from-indigo-50 to-indigo-100 dark:from-indigo-900/30 dark:to-indigo-800/30 group-hover:from-indigo-100 group-hover:to-indigo-200 dark:group-hover:from-indigo-900/50 dark:group-hover:to-indigo-800/50 transition-colors shrink-0">
+                            <svg class="w-5 h-5 text-indigo-400 dark:text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/>
+                            </svg>
+                        </div>
+                        <div class="flex-1 min-w-0">
+                            <p class="text-sm font-semibold text-gray-800 dark:text-gray-200 truncate">{{ $product->name }}</p>
+                            @if($product->category)
+                                <p class="text-[11px] text-gray-400 dark:text-gray-500 truncate">{{ $product->category->name }}</p>
+                            @endif
+                        </div>
+                        <span class="text-xs font-medium px-1.5 py-0.5 rounded shrink-0 {{ $product->stock > 10 ? 'bg-emerald-50 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400' : ($product->stock > 0 ? 'bg-amber-50 dark:bg-amber-900/30 text-amber-600 dark:text-amber-400' : 'bg-red-50 dark:bg-red-900/30 text-red-600 dark:text-red-400') }}">
+                            {{ $product->stock }}
+                        </span>
+                        <p class="text-sm font-bold text-indigo-600 dark:text-indigo-400 whitespace-nowrap shrink-0">₲ {{ number_format($product->price, 0, ',', '.') }}</p>
+                        <svg class="w-4 h-4 text-gray-300 dark:text-gray-600 group-hover:text-indigo-500 shrink-0 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
                     </button>
                     @endforeach
                 </div>
@@ -233,6 +267,34 @@
     <script>
         let cart = [];
         let productIndex = 0;
+
+        function toggleProductView(mode) {
+            const grid = document.getElementById('productGrid');
+            const list = document.getElementById('productList');
+            if (mode === 'list') {
+                grid.classList.add('hidden');
+                list.classList.remove('hidden');
+            } else {
+                list.classList.add('hidden');
+                grid.classList.remove('hidden');
+            }
+            localStorage.setItem('productView', mode);
+            updateToggleButtons(mode);
+        }
+
+        function updateToggleButtons(mode) {
+            const cardsBtn = document.getElementById('viewCardsBtn');
+            const listBtn = document.getElementById('viewListBtn');
+            const activeClass = 'bg-white dark:bg-gray-600 text-indigo-600 dark:text-indigo-400 shadow-sm';
+            const inactiveClass = 'text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300';
+            cardsBtn.className = 'view-toggle-btn p-1.5 rounded-md transition-colors ' + (mode === 'cards' ? activeClass : inactiveClass);
+            listBtn.className = 'view-toggle-btn p-1.5 rounded-md transition-colors ' + (mode === 'list' ? activeClass : inactiveClass);
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const saved = localStorage.getItem('productView') || 'cards';
+            toggleProductView(saved);
+        });
 
         let searchTimeout;
         function searchCustomers(query) {

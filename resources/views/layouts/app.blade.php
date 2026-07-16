@@ -4,10 +4,17 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>{{ config('app.name', 'CantCome') }}</title>
+    <title>{{ $systemName ?? config('app.name', 'CantCome') }}</title>
+    <meta name="theme-color" content="#4f46e5">
+    <meta name="description" content="Sistema de gestión de ventas y stock para cantinas">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="{{ $systemName ?? 'CantCome' }}">
+    <link rel="manifest" href="{{ asset('manifest.json') }}">
+    <link rel="icon" type="image/png" href="{{ asset($systemLogo ?? 'logo.png') }}">
+    <link rel="apple-touch-icon" href="{{ asset($systemLogo ?? 'logo.png') }}">
     <link rel="preconnect" href="https://fonts.bunny.net">
     <link href="https://fonts.bunny.net/css?family=figtree:400,500,600&display=swap" rel="stylesheet" />
-    <link rel="icon" type="image/png" href="{{ asset('logo.png') }}">
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     @stack('styles')
     <script>
@@ -39,8 +46,8 @@
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
                 </svg>
             </button>
-            <img src="{{ asset('logo.png') }}" alt="CantCome" class="h-8 w-auto">
-            <span class="text-base font-bold text-white tracking-tight">CantCome</span>
+            <img src="{{ asset($systemLogo ?? 'logo.png') }}" alt="{{ $systemName ?? 'CantCome' }}" class="h-8 w-auto">
+            <span class="text-base font-bold text-white tracking-tight">{{ $systemName ?? 'CantCome' }}</span>
         </div>
 
         <div class="flex items-center gap-1">
@@ -180,6 +187,16 @@
         </div>
     </div>
 
+    <x-pwa-install />
+
     @stack('scripts')
+
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/sw.js').catch(() => {});
+            });
+        }
+    </script>
 </body>
 </html>

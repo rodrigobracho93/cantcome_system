@@ -13,6 +13,8 @@ use App\Http\Controllers\AlmuerzoController;
 use App\Http\Controllers\StockMovementController;
 use Illuminate\Support\Facades\Route;
 
+use App\Http\Controllers\BackupController;
+
 Route::get('/', function () {
     return redirect()->route('login');
 });
@@ -85,6 +87,18 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::put('/users/{user}', [AdminController::class, 'updateUser'])->name('users.update');
         Route::patch('/users/{user}/toggle-status', [AdminController::class, 'toggleUserStatus'])->name('users.toggle-status');
         Route::delete('/users/{user}', [AdminController::class, 'destroyUser'])->name('users.destroy');
+        Route::get('/settings', [AdminController::class, 'settings'])->name('settings');
+        Route::put('/settings', [AdminController::class, 'updateSettings'])->name('settings.update');
+        Route::put('/settings/branding', [AdminController::class, 'updateBranding'])->name('settings.branding');
+        Route::post('/settings/branding/reset', [AdminController::class, 'resetBranding'])->name('settings.branding.reset');
+
+        Route::middleware('role:superadmin')->group(function () {
+            Route::post('/backups', [BackupController::class, 'create'])->name('backups.create');
+            Route::get('/backups', [BackupController::class, 'list'])->name('backups.list');
+            Route::get('/backups/{filename}/download', [BackupController::class, 'download'])->name('backups.download');
+            Route::post('/backups/restore', [BackupController::class, 'restore'])->name('backups.restore');
+            Route::delete('/backups/{filename}', [BackupController::class, 'destroy'])->name('backups.destroy');
+        });
     });
 
     Route::get('/caja', [CajaController::class, 'index'])->name('caja.index');

@@ -7,6 +7,7 @@ use App\Models\Product;
 use App\Models\Category;
 use App\Models\Customer;
 use App\Models\User;
+use App\Models\Setting;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
@@ -238,5 +239,74 @@ class AdminController extends Controller
         $user->delete();
 
         return redirect()->route('admin.users')->with('success', 'Usuario eliminado permanentemente.');
+    }
+
+    public function settings()
+    {
+        $settings = Setting::getMany([
+            'timezone' => 'America/Asuncion',
+            'date_format' => 'd/m/Y',
+            'time_format' => '24h',
+            'system_name' => 'CantCome',
+            'system_logo' => 'logo.png',
+        ]);
+
+        return view('admin.settings', compact('settings'));
+    }
+
+    public function updateSettings(Request $request)
+    {
+        $validated = $request->validate([
+            'timezone' => 'required|string|max:60',
+            'date_format' => 'required|in:d/m/Y,m/d/Y,Y-m-d,d-m-Y,d.m.Y',
+            'time_format' => 'required|in:24h,12h',
+        ]);
+
+        Setting::set('timezone', $validated['timezone']);
+        Setting::set('date_format', $validated['date_format']);
+        Setting::set('time_format', $validated['time_format']);
+
+        config(['app.timezone' => $validated['timezone']]);
+        date_default_timezone_set($validated['timezone']);
+
+        return redirect()->route('admin.settings')->with('success', 'Configuración guardada exitosamente.');
+    }
+
+    public function updateBranding(Request $request)
+    {
+        $validated = $request->validate([
+            'system_name' => 'required|string|max:100',
+            'system_logo' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:4096',
+        ]);
+
+        Setting::set('system_name', $validated['system_name']);
+
+        if ($request->hasFile('system_logo')) {
+            $file = $request->file('system_logo');
+            $ext = $file->getClientOriginalExtension();
+            $filename = 'logo.' . $ext;
+
+            $file->move(public_path(), $filename);
+            Setting::set('system_logo', $filename);
+        }
+
+        return redirect()->route('admin.settings')->with('success', 'Branding actualizado exitosamente.');
+    }
+
+    public function resetBranding()
+    {
+        $defaultLogo = 'logo-default.png';
+        $currentLogo = Setting::get('system_logo', 'logo.png');
+
+        if ($currentLogo !== 'logo.png' && file_exists(public_path($currentLogo))) {
+            @unlink(public_path($currentLogo));
+        }
+
+        copy(public_path($defaultLogo), public_path('logo.png'));
+
+        Setting::set('system_name', 'CantCome');
+        Setting::set('system_logo', 'logo.png');
+
+        return redirect()->route('admin.settings')->with('success', 'Branding restablecido a los valores por defecto.');
     }
 }

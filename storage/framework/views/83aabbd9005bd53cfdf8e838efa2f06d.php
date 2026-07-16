@@ -4,10 +4,17 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="<?php echo e(csrf_token()); ?>">
-    <title><?php echo e(config('app.name', 'CantCome')); ?></title>
+    <title><?php echo e($systemName ?? config('app.name', 'CantCome')); ?></title>
+    <meta name="theme-color" content="#4f46e5">
+    <meta name="description" content="Sistema de gestión de ventas y stock para cantinas">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="<?php echo e($systemName ?? 'CantCome'); ?>">
+    <link rel="manifest" href="<?php echo e(asset('manifest.json')); ?>">
+    <link rel="icon" type="image/png" href="<?php echo e(asset($systemLogo ?? 'logo.png')); ?>">
+    <link rel="apple-touch-icon" href="<?php echo e(asset($systemLogo ?? 'logo.png')); ?>">
     <link rel="preconnect" href="https://fonts.bunny.net">
     <link href="https://fonts.bunny.net/css?family=figtree:400,500,600&display=swap" rel="stylesheet" />
-    <link rel="icon" type="image/png" href="<?php echo e(asset('logo.png')); ?>">
     <?php echo app('Illuminate\Foundation\Vite')(['resources/css/app.css', 'resources/js/app.js']); ?>
     <?php echo $__env->yieldPushContent('styles'); ?>
     <script>
@@ -39,8 +46,8 @@
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
                 </svg>
             </button>
-            <img src="<?php echo e(asset('logo.png')); ?>" alt="CantCome" class="h-8 w-auto">
-            <span class="text-base font-bold text-white tracking-tight">CantCome</span>
+            <img src="<?php echo e(asset($systemLogo ?? 'logo.png')); ?>" alt="<?php echo e($systemName ?? 'CantCome'); ?>" class="h-8 w-auto">
+            <span class="text-base font-bold text-white tracking-tight"><?php echo e($systemName ?? 'CantCome'); ?></span>
         </div>
 
         <div class="flex items-center gap-1">
@@ -183,7 +190,36 @@
         </div>
     </div>
 
+    <?php if (isset($component)) { $__componentOriginal40c17993d0c21c560a83b65d062854a8 = $component; } ?>
+<?php if (isset($attributes)) { $__attributesOriginal40c17993d0c21c560a83b65d062854a8 = $attributes; } ?>
+<?php $component = Illuminate\View\AnonymousComponent::resolve(['view' => 'components.pwa-install','data' => []] + (isset($attributes) && $attributes instanceof Illuminate\View\ComponentAttributeBag ? $attributes->all() : [])); ?>
+<?php $component->withName('pwa-install'); ?>
+<?php if ($component->shouldRender()): ?>
+<?php $__env->startComponent($component->resolveView(), $component->data()); ?>
+<?php if (isset($attributes) && $attributes instanceof Illuminate\View\ComponentAttributeBag): ?>
+<?php $attributes = $attributes->except(\Illuminate\View\AnonymousComponent::ignoredParameterNames()); ?>
+<?php endif; ?>
+<?php $component->withAttributes([]); ?>
+<?php echo $__env->renderComponent(); ?>
+<?php endif; ?>
+<?php if (isset($__attributesOriginal40c17993d0c21c560a83b65d062854a8)): ?>
+<?php $attributes = $__attributesOriginal40c17993d0c21c560a83b65d062854a8; ?>
+<?php unset($__attributesOriginal40c17993d0c21c560a83b65d062854a8); ?>
+<?php endif; ?>
+<?php if (isset($__componentOriginal40c17993d0c21c560a83b65d062854a8)): ?>
+<?php $component = $__componentOriginal40c17993d0c21c560a83b65d062854a8; ?>
+<?php unset($__componentOriginal40c17993d0c21c560a83b65d062854a8); ?>
+<?php endif; ?>
+
     <?php echo $__env->yieldPushContent('scripts'); ?>
+
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/sw.js').catch(() => {});
+            });
+        }
+    </script>
 </body>
 </html>
 <?php /**PATH C:\xampp\Proyectos\cantcome_system\resources\views/layouts/app.blade.php ENDPATH**/ ?>

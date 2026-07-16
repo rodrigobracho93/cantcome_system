@@ -92,10 +92,10 @@
     </style>
 </head>
 <body>
-    <div class="header">
-        <div class="logo">C</div>
+        <div class="header">
+        <img src="{{ public_path($systemLogo ?? 'logo.png') }}" alt="{{ $systemName ?? 'CantCome' }}" style="height: 36px; width: auto;">
         <div class="header-text">
-            <h1>CantCome</h1>
+            <h1>{{ $systemName ?? 'CantCome' }}</h1>
             <p>Cuentas por Cobrar</p>
         </div>
     </div>
