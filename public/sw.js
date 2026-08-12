@@ -1,7 +1,9 @@
-const CACHE_NAME = 'cantcome-v1';
+const CACHE_NAME = 'cantcome-v2';
 const STATIC_ASSETS = [
     '/manifest.json',
     '/logo.png',
+    '/icon-192.png',
+    '/icon-512.png',
     '/favicon.ico'
 ];
 

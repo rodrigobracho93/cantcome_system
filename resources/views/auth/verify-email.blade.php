@@ -1,7 +1,14 @@
 <x-guest-layout>
-    <div class="mb-4 text-sm text-gray-600 dark:text-gray-300">
-        Gracias por registrarte. Antes de continuar, verifica tu correo electrónico con el enlace que te enviamos.
-        Si no recibiste el correo, te enviaremos otro.
+    <div class="text-center mb-6">
+        <div class="login-logo-wrap mx-auto mb-3 w-fit">
+            <div class="login-logo-ring"></div>
+            <img src="{{ asset($systemLogo ?? 'logo.png') }}" alt="{{ $systemName ?? 'CantCome' }}" class="login-logo h-16 w-auto">
+        </div>
+        <h1 class="login-name text-xl font-bold">Verificar correo</h1>
+        <div class="login-dots">
+            <span></span><span></span><span></span>
+        </div>
+        <p class="login-sub text-sm text-gray-500 dark:text-gray-400 mt-2">Gracias por registrarte. Verifica tu correo electrónico con el enlace que te enviamos.</p>
     </div>
 
     @if (session('status') == 'verification-link-sent')

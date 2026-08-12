@@ -9,18 +9,24 @@
     @endif
 
     <div class="text-center mb-6">
-        <img src="{{ asset($systemLogo ?? 'logo.png') }}" alt="{{ $systemName ?? 'CantCome' }}" class="h-16 w-auto mx-auto mb-3">
-        <h1 class="text-xl font-bold text-gray-900 dark:text-white">{{ $systemName ?? 'CantCome' }}</h1>
-        <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">Inicia sesión para continuar</p>
+        <div class="login-logo-wrap mx-auto mb-3 w-fit">
+            <div class="login-logo-ring"></div>
+            <img src="{{ asset($systemLogo ?? 'logo.png') }}" alt="{{ $systemName ?? 'CantCome' }}" class="login-logo h-16 w-auto">
+        </div>
+        <h1 class="login-name text-xl font-bold">{{ $systemName ?? 'CantCome' }}</h1>
+        <div class="login-dots">
+            <span></span><span></span><span></span>
+        </div>
+        <p class="login-sub text-sm text-gray-500 dark:text-gray-400 mt-2">Inicia sesión para continuar</p>
     </div>
 
     <form method="POST" action="{{ route('login') }}">
         @csrf
 
         <div>
-            <x-input-label for="email" value="Correo electrónico" />
-            <x-text-input id="email" class="block mt-1 w-full" type="email" name="email" :value="old('email')" placeholder="tu@correo.com" required autofocus autocomplete="username" />
-            <x-input-error :messages="$errors->get('email')" class="mt-2" />
+            <x-input-label for="login" value="Correo electrónico o cédula" />
+            <x-text-input id="login" class="block mt-1 w-full" type="text" name="login" :value="old('login')" placeholder="tu@correo.com o 1234567" required autofocus autocomplete="username" />
+            <x-input-error :messages="$errors->get('login')" class="mt-2" />
         </div>
 
         <div class="mt-4" x-data="{ show: false }">

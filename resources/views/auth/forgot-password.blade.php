@@ -1,12 +1,14 @@
 <x-guest-layout>
     <div class="text-center mb-6">
-        <div class="inline-flex items-center justify-center w-14 h-14 bg-indigo-600 rounded-2xl mb-3">
-            <svg class="w-7 h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m0 0v2m0-2h2m-2 0H10m9.364-7.364A9 9 0 1112 3a9 9 0 017.364 4.636z"/>
-            </svg>
+        <div class="login-logo-wrap mx-auto mb-3 w-fit">
+            <div class="login-logo-ring"></div>
+            <img src="{{ asset($systemLogo ?? 'logo.png') }}" alt="{{ $systemName ?? 'CantCome' }}" class="login-logo h-16 w-auto">
         </div>
-        <h1 class="text-xl font-bold text-gray-900 dark:text-white">¿Olvidaste tu contraseña?</h1>
-        <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">Ingresa tu correo y te enviaremos un enlace para restablecerla.</p>
+        <h1 class="login-name text-xl font-bold">¿Olvidaste tu contraseña?</h1>
+        <div class="login-dots">
+            <span></span><span></span><span></span>
+        </div>
+        <p class="login-sub text-sm text-gray-500 dark:text-gray-400 mt-2">Ingresa tu correo y te enviaremos un enlace para restablecerla.</p>
     </div>
 
     <x-auth-session-status class="mb-4" :status="session('status')" />

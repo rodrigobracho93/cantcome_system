@@ -38,9 +38,15 @@
     <?php endif; ?>
 
     <div class="text-center mb-6">
-        <img src="<?php echo e(asset('logo.png')); ?>" alt="CantCome" class="h-16 w-auto mx-auto mb-3">
-        <h1 class="text-xl font-bold text-gray-900 dark:text-white">CantCome</h1>
-        <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">Inicia sesión para continuar</p>
+        <div class="login-logo-wrap mx-auto mb-3 w-fit">
+            <div class="login-logo-ring"></div>
+            <img src="<?php echo e(asset($systemLogo ?? 'logo.png')); ?>" alt="<?php echo e($systemName ?? 'CantCome'); ?>" class="login-logo h-16 w-auto">
+        </div>
+        <h1 class="login-name text-xl font-bold"><?php echo e($systemName ?? 'CantCome'); ?></h1>
+        <div class="login-dots">
+            <span></span><span></span><span></span>
+        </div>
+        <p class="login-sub text-sm text-gray-500 dark:text-gray-400 mt-2">Inicia sesión para continuar</p>
     </div>
 
     <form method="POST" action="<?php echo e(route('login')); ?>">
@@ -49,14 +55,14 @@
         <div>
             <?php if (isset($component)) { $__componentOriginale3da9d84bb64e4bc2eeebaafabfb2581 = $component; } ?>
 <?php if (isset($attributes)) { $__attributesOriginale3da9d84bb64e4bc2eeebaafabfb2581 = $attributes; } ?>
-<?php $component = Illuminate\View\AnonymousComponent::resolve(['view' => 'components.input-label','data' => ['for' => 'email','value' => 'Correo electrónico']] + (isset($attributes) && $attributes instanceof Illuminate\View\ComponentAttributeBag ? $attributes->all() : [])); ?>
+<?php $component = Illuminate\View\AnonymousComponent::resolve(['view' => 'components.input-label','data' => ['for' => 'login','value' => 'Correo electrónico o cédula']] + (isset($attributes) && $attributes instanceof Illuminate\View\ComponentAttributeBag ? $attributes->all() : [])); ?>
 <?php $component->withName('input-label'); ?>
 <?php if ($component->shouldRender()): ?>
 <?php $__env->startComponent($component->resolveView(), $component->data()); ?>
 <?php if (isset($attributes) && $attributes instanceof Illuminate\View\ComponentAttributeBag): ?>
 <?php $attributes = $attributes->except(\Illuminate\View\AnonymousComponent::ignoredParameterNames()); ?>
 <?php endif; ?>
-<?php $component->withAttributes(['for' => 'email','value' => 'Correo electrónico']); ?>
+<?php $component->withAttributes(['for' => 'login','value' => 'Correo electrónico o cédula']); ?>
 <?php echo $__env->renderComponent(); ?>
 <?php endif; ?>
 <?php if (isset($__attributesOriginale3da9d84bb64e4bc2eeebaafabfb2581)): ?>
@@ -69,14 +75,14 @@
 <?php endif; ?>
             <?php if (isset($component)) { $__componentOriginal18c21970322f9e5c938bc954620c12bb = $component; } ?>
 <?php if (isset($attributes)) { $__attributesOriginal18c21970322f9e5c938bc954620c12bb = $attributes; } ?>
-<?php $component = Illuminate\View\AnonymousComponent::resolve(['view' => 'components.text-input','data' => ['id' => 'email','class' => 'block mt-1 w-full','type' => 'email','name' => 'email','value' => old('email'),'placeholder' => 'tu@correo.com','required' => true,'autofocus' => true,'autocomplete' => 'username']] + (isset($attributes) && $attributes instanceof Illuminate\View\ComponentAttributeBag ? $attributes->all() : [])); ?>
+<?php $component = Illuminate\View\AnonymousComponent::resolve(['view' => 'components.text-input','data' => ['id' => 'login','class' => 'block mt-1 w-full','type' => 'text','name' => 'login','value' => old('login'),'placeholder' => 'tu@correo.com o 1234567','required' => true,'autofocus' => true,'autocomplete' => 'username']] + (isset($attributes) && $attributes instanceof Illuminate\View\ComponentAttributeBag ? $attributes->all() : [])); ?>
 <?php $component->withName('text-input'); ?>
 <?php if ($component->shouldRender()): ?>
 <?php $__env->startComponent($component->resolveView(), $component->data()); ?>
 <?php if (isset($attributes) && $attributes instanceof Illuminate\View\ComponentAttributeBag): ?>
 <?php $attributes = $attributes->except(\Illuminate\View\AnonymousComponent::ignoredParameterNames()); ?>
 <?php endif; ?>
-<?php $component->withAttributes(['id' => 'email','class' => 'block mt-1 w-full','type' => 'email','name' => 'email','value' => \Illuminate\View\Compilers\BladeCompiler::sanitizeComponentAttribute(old('email')),'placeholder' => 'tu@correo.com','required' => true,'autofocus' => true,'autocomplete' => 'username']); ?>
+<?php $component->withAttributes(['id' => 'login','class' => 'block mt-1 w-full','type' => 'text','name' => 'login','value' => \Illuminate\View\Compilers\BladeCompiler::sanitizeComponentAttribute(old('login')),'placeholder' => 'tu@correo.com o 1234567','required' => true,'autofocus' => true,'autocomplete' => 'username']); ?>
 <?php echo $__env->renderComponent(); ?>
 <?php endif; ?>
 <?php if (isset($__attributesOriginal18c21970322f9e5c938bc954620c12bb)): ?>
@@ -89,14 +95,14 @@
 <?php endif; ?>
             <?php if (isset($component)) { $__componentOriginalf94ed9c5393ef72725d159fe01139746 = $component; } ?>
 <?php if (isset($attributes)) { $__attributesOriginalf94ed9c5393ef72725d159fe01139746 = $attributes; } ?>
-<?php $component = Illuminate\View\AnonymousComponent::resolve(['view' => 'components.input-error','data' => ['messages' => $errors->get('email'),'class' => 'mt-2']] + (isset($attributes) && $attributes instanceof Illuminate\View\ComponentAttributeBag ? $attributes->all() : [])); ?>
+<?php $component = Illuminate\View\AnonymousComponent::resolve(['view' => 'components.input-error','data' => ['messages' => $errors->get('login'),'class' => 'mt-2']] + (isset($attributes) && $attributes instanceof Illuminate\View\ComponentAttributeBag ? $attributes->all() : [])); ?>
 <?php $component->withName('input-error'); ?>
 <?php if ($component->shouldRender()): ?>
 <?php $__env->startComponent($component->resolveView(), $component->data()); ?>
 <?php if (isset($attributes) && $attributes instanceof Illuminate\View\ComponentAttributeBag): ?>
 <?php $attributes = $attributes->except(\Illuminate\View\AnonymousComponent::ignoredParameterNames()); ?>
 <?php endif; ?>
-<?php $component->withAttributes(['messages' => \Illuminate\View\Compilers\BladeCompiler::sanitizeComponentAttribute($errors->get('email')),'class' => 'mt-2']); ?>
+<?php $component->withAttributes(['messages' => \Illuminate\View\Compilers\BladeCompiler::sanitizeComponentAttribute($errors->get('login')),'class' => 'mt-2']); ?>
 <?php echo $__env->renderComponent(); ?>
 <?php endif; ?>
 <?php if (isset($__attributesOriginalf94ed9c5393ef72725d159fe01139746)): ?>

@@ -1,11 +1,13 @@
 <x-guest-layout>
     <div class="text-center mb-6">
-        <div class="inline-flex items-center justify-center w-14 h-14 bg-indigo-600 rounded-2xl mb-3">
-            <svg class="w-7 h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z"/>
-            </svg>
+        <div class="login-logo-wrap mx-auto mb-3 w-fit">
+            <div class="login-logo-ring"></div>
+            <img src="{{ asset($systemLogo ?? 'logo.png') }}" alt="{{ $systemName ?? 'CantCome' }}" class="login-logo h-16 w-auto">
         </div>
-        <h1 class="text-xl font-bold text-gray-900 dark:text-white">Restablecer contraseña</h1>
+        <h1 class="login-name text-xl font-bold">Restablecer contraseña</h1>
+        <div class="login-dots">
+            <span></span><span></span><span></span>
+        </div>
     </div>
 
     <form method="POST" action="{{ route('password.store') }}">

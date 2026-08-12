@@ -1,6 +1,14 @@
 <x-guest-layout>
-    <div class="mb-4 text-sm text-gray-600 dark:text-gray-300">
-        Esta es un área segura. Por favor confirma tu contraseña antes de continuar.
+    <div class="text-center mb-6">
+        <div class="login-logo-wrap mx-auto mb-3 w-fit">
+            <div class="login-logo-ring"></div>
+            <img src="{{ asset($systemLogo ?? 'logo.png') }}" alt="{{ $systemName ?? 'CantCome' }}" class="login-logo h-16 w-auto">
+        </div>
+        <h1 class="login-name text-xl font-bold">Área segura</h1>
+        <div class="login-dots">
+            <span></span><span></span><span></span>
+        </div>
+        <p class="login-sub text-sm text-gray-500 dark:text-gray-400 mt-2">Por favor confirma tu contraseña antes de continuar.</p>
     </div>
 
     <form method="POST" action="{{ route('password.confirm') }}">

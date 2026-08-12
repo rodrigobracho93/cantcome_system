@@ -11,6 +11,7 @@ use App\Models\Setting;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\File;
 use Barryvdh\DomPDF\Facade\Pdf;
 
 class AdminController extends Controller
@@ -288,9 +289,58 @@ class AdminController extends Controller
 
             $file->move(public_path(), $filename);
             Setting::set('system_logo', $filename);
+
+            $this->generatePwaIcons(public_path($filename));
         }
 
         return redirect()->route('admin.settings')->with('success', 'Branding actualizado exitosamente.');
+    }
+
+    private function generatePwaIcons(string $sourcePath): void
+    {
+        if (!file_exists($sourcePath)) return;
+
+        $sizes = [192, 512];
+        $info = getimagesize($sourcePath);
+        if (!$info) return;
+
+        $mime = $info['mime'];
+        switch ($mime) {
+            case 'image/jpeg':
+                $src = imagecreatefromjpeg($sourcePath);
+                break;
+            case 'image/png':
+                $src = imagecreatefrompng($sourcePath);
+                break;
+            case 'image/webp':
+                $src = imagecreatefromwebp($sourcePath);
+                break;
+            default:
+                return;
+        }
+
+        $origW = imagesx($src);
+        $origH = imagesy($src);
+
+        foreach ($sizes as $size) {
+            $dst = imagecreatetruecolor($size, $size);
+            imagealphablending($dst, false);
+            imagesavealpha($dst, true);
+            $transparent = imagecolorallocatealpha($dst, 0, 0, 0, 127);
+            imagefilledrectangle($dst, 0, 0, $size, $size, $transparent);
+
+            $ratio = $size / max($origW, $origH);
+            $newW = (int)($origW * $ratio);
+            $newH = (int)($origH * $ratio);
+            $offsetX = (int)(($size - $newW) / 2);
+            $offsetY = (int)(($size - $newH) / 2);
+
+            imagecopyresampled($dst, $src, $offsetX, $offsetY, 0, 0, $newW, $newH, $origW, $origH);
+            imagepng($dst, public_path("icon-{$size}.png"));
+            imagedestroy($dst);
+        }
+
+        imagedestroy($src);
     }
 
     public function resetBranding()
@@ -303,6 +353,8 @@ class AdminController extends Controller
         }
 
         copy(public_path($defaultLogo), public_path('logo.png'));
+
+        $this->generatePwaIcons(public_path('logo.png'));
 
         Setting::set('system_name', 'CantCome');
         Setting::set('system_logo', 'logo.png');
