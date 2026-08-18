@@ -1,7 +1,7 @@
 <section>
     <header>
         <h2 class="text-lg font-semibold text-gray-900 dark:text-white">Información del Perfil</h2>
-        <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">Actualiza tu foto, nombre y correo electrónico.</p>
+        <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">Actualiza tu foto, nombre, cédula y correo electrónico.</p>
     </header>
 
     <form method="post" action="{{ route('profile.update') }}" class="mt-6" enctype="multipart/form-data">
@@ -14,9 +14,9 @@
             stream: null,
             initCamera() {
                 if (!navigator.mediaDevices?.getUserMedia) { alert('Tu dispositivo no soporta acceso a la cámara.'); return }
-                navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } })
+                navigator.mediaDevices.getUserMedia({ video: { facingMode: { ideal: 'environment' } } })
                     .then(s => { this.stream = s; this.cameraOpen = true; this.$nextTick(() => { const v = document.getElementById('profile-camera-preview'); if (v) v.srcObject = s }) })
-                    .catch(() => alert('No se pudo acceder a la cámara. Verifica los permisos.'))
+                    .catch(e => alert(e.name === 'OverconstrainedError' ? 'No se encontró una cámara trasera. Recarga la página e inténtalo de nuevo.' : 'No se pudo acceder a la cámara. Verifica que el navegador tenga permiso (y usa https:// o localhost).'))
             },
             stopCamera() {
                 if (this.stream) { this.stream.getTracks().forEach(t => t.stop()); this.stream = null }
@@ -60,6 +60,13 @@
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
                         Seleccionar archivo
                     </button>
+                    @if ($user->profile_photo_url)
+                        <button type="button" onclick="if(confirm('¿Estás seguro de restablecer tu foto de perfil?')){const f=document.createElement('form');f.method='POST';f.action='{{ route('profile.reset-photo') }}';f.innerHTML='<input type=\'hidden\' name=\'_token\' value=\'{{ csrf_token() }}\'>';document.body.appendChild(f);f.submit()}"
+                            class="inline-flex items-center gap-1.5 px-3 py-2 bg-red-50 text-red-600 border border-red-200 rounded-lg hover:bg-red-100 transition-colors text-sm font-medium">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+                            Restablecer foto
+                        </button>
+                    @endif
                     <span class="text-xs text-gray-400 dark:text-gray-500" x-text="photoName || 'Sin cambios'"></span>
                 </div>
                 <input id="profile_file_input" type="file" name="profile_photo" accept="image/jpeg,image/png,image/webp"
@@ -105,6 +112,12 @@
         </div>
 
         <div class="mt-4">
+            <x-input-label for="cedula" value="Número de Cédula" />
+            <x-text-input id="cedula" name="cedula" type="text" class="mt-1 block w-full" :value="old('cedula', $user->cedula)" maxlength="20" placeholder="Ej: 1234567" />
+            <x-input-error class="mt-2" :messages="$errors->get('cedula')" />
+        </div>
+
+        <div class="mt-4">
             <x-input-label for="email" value="Correo electrónico" />
             <x-text-input id="email" name="email" type="email" class="mt-1 block w-full" :value="old('email', $user->email)" required autocomplete="username" />
             <x-input-error class="mt-2" :messages="$errors->get('email')" />
@@ -115,6 +128,10 @@
 
             @if (session('status') === 'profile-updated')
                 <p class="text-sm text-emerald-600 dark:text-emerald-400">Guardado.</p>
+            @endif
+
+            @if (session('status') === 'photo-reset')
+                <p class="text-sm text-emerald-600 dark:text-emerald-400">Foto restablecida.</p>
             @endif
         </div>
     </form>

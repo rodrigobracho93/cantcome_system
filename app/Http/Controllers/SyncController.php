@@ -90,6 +90,23 @@ class SyncController extends Controller
         $recordId = $request->input('record_id');
         $payload = $request->input('payload');
 
+        if (!is_array($payload)) {
+            return response()->json(['error' => 'Invalid payload'], 422);
+        }
+
+        $allowed = [
+            'products' => ['id', 'name', 'description', 'price', 'stock', 'category_id', 'is_active'],
+            'categories' => ['id', 'name', 'description'],
+            'customers' => ['id', 'name', 'email', 'phone', 'cedula'],
+            'sales' => ['id', 'customer_id', 'user_id', 'total', 'status', 'payment_type', 'created_at'],
+        ];
+
+        if (!isset($allowed[$table])) {
+            return response()->json(['error' => 'Unknown table'], 422);
+        }
+
+        $payload = collect($payload)->only($allowed[$table])->toArray();
+
         DB::transaction(function () use ($table, $action, $recordId, $payload) {
             $model = $this->getModel($table);
 

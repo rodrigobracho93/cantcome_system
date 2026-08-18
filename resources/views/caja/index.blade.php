@@ -141,5 +141,10 @@
             <p class="text-sm text-gray-400 dark:text-gray-500">No hay registros de caja</p>
         </div>
         @endforelse
+        @if($cajas->hasPages())
+        <div class="px-4 py-3 border-t border-gray-100 dark:border-gray-700">
+            {{ $cajas->links() }}
+        </div>
+        @endif
     </div>
 </x-app-layout>

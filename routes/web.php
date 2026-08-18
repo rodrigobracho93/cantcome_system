@@ -24,6 +24,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
+    Route::post('/profile/reset-photo', [ProfileController::class, 'resetPhoto'])->name('profile.reset-photo');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 
     Route::get('/products', [ProductController::class, 'index'])->name('products.index');
@@ -64,7 +65,6 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/almuerzos/reporte', [AlmuerzoController::class, 'reporteMensual'])->name('almuerzos.reporte');
     Route::get('/almuerzos/daily-pdf', [AlmuerzoController::class, 'dailyPdf'])->name('almuerzos.daily-pdf');
     Route::get('/almuerzos/reporte/pdf', [AlmuerzoController::class, 'reportePdf'])->name('almuerzos.reporte-pdf');
-    Route::get('/almuerzos/reporte/pdf', [AlmuerzoController::class, 'reportePdf'])->name('almuerzos.reporte-pdf');
     Route::get('/almuerzos/crear-cliente', [AlmuerzoController::class, 'createCliente'])->name('almuerzos.create-cliente');
     Route::post('/almuerzos/crear-cliente', [AlmuerzoController::class, 'storeCliente'])->name('almuerzos.store-cliente');
 
@@ -74,9 +74,11 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::put('/stock-movements/{stockMovement}', [StockMovementController::class, 'update'])->name('stock-movements.update');
     Route::delete('/stock-movements/{stockMovement}', [StockMovementController::class, 'destroy'])->name('stock-movements.destroy');
 
-    Route::get('/categories', [AdminController::class, 'categories'])->name('categories');
-    Route::post('/categories', [AdminController::class, 'storeCategory'])->name('categories.store');
-    Route::put('/categories/{category}', [AdminController::class, 'updateCategory'])->name('categories.update');
+    Route::middleware('role:admin')->group(function () {
+        Route::get('/categories', [AdminController::class, 'categories'])->name('categories');
+        Route::post('/categories', [AdminController::class, 'storeCategory'])->name('categories.store');
+        Route::put('/categories/{category}', [AdminController::class, 'updateCategory'])->name('categories.update');
+    });
 
     Route::middleware('role:admin')->prefix('admin')->name('admin.')->group(function () {
         Route::get('/reports', [AdminController::class, 'reports'])->name('reports');
@@ -116,7 +118,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('/cuentas-por-cobrar/{sale}/pay', [CustomerSalesController::class, 'markAsPaid'])->name('customer-sales.pay');
     Route::post('/cuentas-por-cobrar/{sale}/unpay', [CustomerSalesController::class, 'markAsUnpaid'])->name('customer-sales.unpay');
 
-    Route::get('/sync', [SyncController::class, 'pushUnsynced'])->name('sync.push');
+    // Route::get('/sync', [SyncController::class, 'pushUnsynced'])->name('sync.push');
 
     Route::post('/switch-role/{role}', function (string $role) {
         $user = Auth::user();

@@ -7,7 +7,6 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Redirect;
-use Illuminate\Support\Facades\Storage;
 use Illuminate\View\View;
 
 class ProfileController extends Controller
@@ -35,16 +34,24 @@ class ProfileController extends Controller
         }
 
         if ($request->hasFile('profile_photo')) {
-            if ($user->profile_photo_path) {
-                Storage::disk('public')->delete($user->profile_photo_path);
-            }
-            $path = $request->file('profile_photo')->store('profile-photos', 'public');
+            $path = $user->uploadProfilePhoto($request->file('profile_photo'));
             $user->profile_photo_path = $path;
         }
 
         $user->save();
 
         return Redirect::route('profile.edit')->with('status', 'profile-updated');
+    }
+
+    /**
+     * Reset the user's profile photo to default.
+     */
+    public function resetPhoto(Request $request): RedirectResponse
+    {
+        $user = $request->user();
+        $user->resetProfilePhoto();
+
+        return Redirect::route('profile.edit')->with('status', 'photo-reset');
     }
 
     /**

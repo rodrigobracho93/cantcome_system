@@ -55,7 +55,7 @@
 
     <p class="sidebar-section px-3 mt-6 mb-2 text-[11px] font-bold text-indigo-400 uppercase tracking-[0.12em]">Caja</p>
 
-    <x-nav-link :href="route('caja.index')" :active="request()->routeIs('caja.*')" sidebar>
+    <x-nav-link :href="route('caja.index')" :active="request()->routeIs('caja.index', 'caja.create', 'caja.show', 'caja.close', 'caja.movimiento.*')" sidebar>
         <x-slot name="icon">
             <svg class="w-[18px] h-[18px]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"/>

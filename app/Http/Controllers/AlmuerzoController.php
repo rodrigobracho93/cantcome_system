@@ -75,6 +75,10 @@ class AlmuerzoController extends Controller
 
     public function destroy(Almuerzo $almuerzo)
     {
+        if (!auth()->user()->isAdmin()) {
+            abort(403, 'No tienes permiso para eliminar registros de almuerzo.');
+        }
+
         $almuerzo->delete();
         return back()->with('success', 'Registro de almuerzo eliminado.');
     }

@@ -66,7 +66,7 @@
                 <div class="text-left hidden sm:block">
                     <p class="text-xs font-semibold text-white leading-tight"><?php echo e(Auth::user()->name); ?></p>
                     <?php $activeRole = session('active_role', Auth::user()->role); ?>
-                    <p class="text-[10px] font-medium text-indigo-200 leading-tight"><?php echo e($activeRole === 'superadmin' ? 'Superadmin' : ($activeRole === 'admin' ? 'Administrador' : 'Cantina')); ?></p>
+                    <p class="text-[10px] font-medium text-indigo-200 leading-tight"><?php echo e($activeRole === 'superadmin' ? '👑 Superadmin' : ($activeRole === 'admin' ? '🛡️ Administrador' : '🍽️ Cantina')); ?></p>
                 </div>
             </a>
 
@@ -76,7 +76,7 @@
                         <svg class="w-3.5 h-3.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"/>
                         </svg>
-                        <span class="hidden sm:inline"><?php echo e($activeRole === 'superadmin' ? 'Super' : ($activeRole === 'admin' ? 'Admin' : 'Cantina')); ?></span>
+                        <span class="hidden sm:inline"><?php echo e($activeRole === 'superadmin' ? '👑 Super' : ($activeRole === 'admin' ? '🛡️ Admin' : '🍽️ Cantina')); ?></span>
                         <svg class="w-3 h-3 hidden sm:block" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
                         </svg>
@@ -85,16 +85,16 @@
                         <?php if(Auth::user()->isSuperAdmin()): ?>
                         <form method="POST" action="<?php echo e(route('switch.role', 'superadmin')); ?>">
                             <?php echo csrf_field(); ?>
-                            <button type="submit" class="w-full text-left px-4 py-2 text-sm <?php echo e($activeRole === 'superadmin' ? 'text-indigo-600 font-semibold' : 'text-gray-700 dark:text-gray-200'); ?> hover:bg-gray-100 dark:hover:bg-gray-700">Superadmin</button>
+                            <button type="submit" class="w-full text-left px-4 py-2 text-sm <?php echo e($activeRole === 'superadmin' ? 'text-indigo-600 font-semibold' : 'text-gray-700 dark:text-gray-200'); ?> hover:bg-gray-100 dark:hover:bg-gray-700">👑 Superadmin</button>
                         </form>
                         <?php endif; ?>
                         <form method="POST" action="<?php echo e(route('switch.role', 'admin')); ?>">
                             <?php echo csrf_field(); ?>
-                            <button type="submit" class="w-full text-left px-4 py-2 text-sm <?php echo e($activeRole === 'admin' ? 'text-indigo-600 font-semibold' : 'text-gray-700 dark:text-gray-200'); ?> hover:bg-gray-100 dark:hover:bg-gray-700">Administrador</button>
+                            <button type="submit" class="w-full text-left px-4 py-2 text-sm <?php echo e($activeRole === 'admin' ? 'text-indigo-600 font-semibold' : 'text-gray-700 dark:text-gray-200'); ?> hover:bg-gray-100 dark:hover:bg-gray-700">🛡️ Administrador</button>
                         </form>
                         <form method="POST" action="<?php echo e(route('switch.role', 'cantina')); ?>">
                             <?php echo csrf_field(); ?>
-                            <button type="submit" class="w-full text-left px-4 py-2 text-sm <?php echo e($activeRole === 'cantina' ? 'text-indigo-600 font-semibold' : 'text-gray-700 dark:text-gray-200'); ?> hover:bg-gray-100 dark:hover:bg-gray-700">Cantina</button>
+                            <button type="submit" class="w-full text-left px-4 py-2 text-sm <?php echo e($activeRole === 'cantina' ? 'text-indigo-600 font-semibold' : 'text-gray-700 dark:text-gray-200'); ?> hover:bg-gray-100 dark:hover:bg-gray-700">🍽️ Cantina</button>
                         </form>
                     </div>
                 </div>
@@ -160,10 +160,14 @@
 
                 
                 <div class="border-t border-indigo-800/40 p-2 shrink-0">
-                    <button @click="collapsed = !collapsed" class="w-full flex items-center justify-center gap-2 py-2 text-indigo-300/70 hover:text-white hover:bg-indigo-800/30 rounded-lg transition-colors text-xs font-medium"
+                    <button @click="collapsed = !collapsed"
+                        class="w-full flex items-center justify-center gap-2 p-1.5 text-indigo-300 rounded-lg hover:text-red-300 hover:bg-indigo-800/40 transition-colors text-xs font-medium"
                         :class="collapsed ? 'flex-col' : ''">
-                        <svg class="w-4 h-4 shrink-0" :class="collapsed ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <svg x-show="!collapsed" class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 19l-7-7 7-7m8 14l-7-7 7-7"/>
+                        </svg>
+                        <svg x-show="collapsed" x-cloak class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 5l7 7-7 7M5 5l7 7-7 7"/>
                         </svg>
                         <span x-show="!collapsed" x-cloak class="text-[10px] whitespace-nowrap">Ocultar menú</span>
                     </button>
@@ -176,9 +180,8 @@
 
             
             <?php if(isset($header)): ?>
-            <div class="px-4 sm:px-8 lg:px-10 pt-4 sm:pt-6 lg:pt-8 pb-0">
-                <?php echo e($header); ?>
-
+            <div class="page-header px-4 sm:px-8 lg:px-10 pt-4 sm:pt-6 lg:pt-8 pb-0">
+                <h1 class="page-header-title text-lg sm:text-xl font-bold"><?php echo e($header); ?></h1>
             </div>
             <?php endif; ?>
 

@@ -12,7 +12,7 @@ class CajaController extends Controller
 {
     public function index()
     {
-        $cajas = Caja::with('user')->orderByDesc('fecha_apertura')->get();
+        $cajas = Caja::with('user')->orderByDesc('fecha_apertura')->paginate(15);
         $cajaAbierta = Caja::where('estado', 'abierta')->withCount(['movimientos as ventas_count' => function ($q) {
             $q->where('tipo', 'ingreso')->where('referencia_type', 'App\Models\Sale');
         }])->first();
@@ -84,6 +84,10 @@ class CajaController extends Controller
 
     public function destroy(Caja $caja)
     {
+        if (!auth()->user()->isAdmin()) {
+            abort(403, 'No tienes permiso para eliminar registros de caja.');
+        }
+
         $caja->movimientos()->delete();
         $caja->delete();
 

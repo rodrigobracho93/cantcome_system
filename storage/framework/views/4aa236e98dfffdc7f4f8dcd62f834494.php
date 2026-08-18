@@ -31,15 +31,15 @@ unset($__defined_vars, $__key, $__value); ?>
 <?php
 if ($sidebar) {
     $classes = ($active ?? false)
-        ? 'sidebar-link flex items-center gap-3 pl-3 py-2.5 text-sm font-medium text-white bg-indigo-800/60 border-l-4 border-indigo-400 transition duration-150'
-        : 'sidebar-link flex items-center gap-3 pl-4 py-2.5 text-sm font-medium text-white/80 hover:text-white hover:bg-indigo-800/30 border-l-4 border-transparent transition duration-150';
+        ? 'sidebar-link active flex items-center gap-3 pl-3 py-2.5 text-sm font-medium text-white bg-indigo-800/60 border-l-4 border-indigo-400 transition duration-200'
+        : 'sidebar-link flex items-center gap-3 pl-4 py-2.5 text-sm font-medium text-white/80 hover:text-white hover:bg-indigo-800/30 border-l-4 border-transparent transition duration-200';
 }
 ?>
 
-<a <?php echo e($attributes->merge(['class' => $classes])); ?>>
+<a <?php echo e($attributes->merge(['class' => $classes . ' group'])); ?>>
     <?php if($sidebar && isset($icon)): ?>
-        <span class="shrink-0"><?php echo e($icon); ?></span>
+        <span class="shrink-0 transition-all duration-200 group-hover:scale-110 group-hover:translate-x-0.5 group-hover:text-indigo-300"><?php echo e($icon); ?></span>
     <?php endif; ?>
-    <span class="sidebar-text"><?php echo e($slot); ?></span>
+    <span class="sidebar-text transition-colors duration-200"><?php echo e($slot); ?></span>
 </a>
 <?php /**PATH C:\xampp\Proyectos\cantcome_system\resources\views/components/nav-link.blade.php ENDPATH**/ ?>

@@ -39,6 +39,10 @@
                     <x-text-input name="email" type="email" class="mt-1 block w-full" placeholder="correo@ejemplo.com" required />
                 </div>
                 <div>
+                    <x-input-label value="Cédula" />
+                    <x-text-input name="cedula" type="text" class="mt-1 block w-full" placeholder="1234567" maxlength="20" />
+                </div>
+                <div>
                     <x-input-label value="Teléfono" />
                     <x-text-input name="phone" type="tel" class="mt-1 block w-full" placeholder="+595 981 234 567" />
                 </div>
@@ -49,10 +53,10 @@
                 <div>
                     <x-input-label value="Rol" />
                     <select name="role" class="mt-1 block w-full border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 rounded-lg shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
-                        <option value="cantina">Cantina</option>
-                        <option value="admin">Administrador</option>
+                        <option value="cantina">🍽️ Cantina</option>
+                        <option value="admin">🛡️ Administrador</option>
                         @if(Auth::user()->isSuperAdmin())
-                        <option value="superadmin">Superadmin</option>
+                        <option value="superadmin">👑 Superadmin</option>
                         @endif
                     </select>
                 </div>
@@ -63,9 +67,9 @@
                     photoBlob: null,
                     initCamera() {
                         if (!navigator.mediaDevices?.getUserMedia) { alert('Tu dispositivo no soporta acceso a la cámara.'); return }
-                        navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } })
+                        navigator.mediaDevices.getUserMedia({ video: { facingMode: { ideal: 'environment' } } })
                             .then(s => { this.stream = s; this.cameraOpen = true; this.$nextTick(() => { const v = document.getElementById('camera-preview'); if (v) v.srcObject = s }) })
-                            .catch(() => alert('No se pudo acceder a la cámara. Verifica los permisos.'))
+                            .catch(e => alert(e.name === 'OverconstrainedError' ? 'No se encontró una cámara trasera. Recarga la página e inténtalo de nuevo.' : 'No se pudo acceder a la cámara. Verifica que el navegador tenga permiso (y usa https:// o localhost).'))
                     },
                     stopCamera() {
                         if (this.stream) { this.stream.getTracks().forEach(t => t.stop()); this.stream = null }
@@ -188,6 +192,7 @@
                     <tr>
                         <th class="px-4 py-3 text-left text-xs font-semibold text-gray-500 dark:text-gray-300 uppercase tracking-wider">Usuario</th>
                         <th class="px-4 py-3 text-left text-xs font-semibold text-gray-500 dark:text-gray-300 uppercase tracking-wider">Contacto</th>
+                        <th class="px-4 py-3 text-center text-xs font-semibold text-gray-500 dark:text-gray-300 uppercase tracking-wider">Cédula</th>
                         <th class="px-4 py-3 text-center text-xs font-semibold text-gray-500 dark:text-gray-300 uppercase tracking-wider">Rol</th>
                         <th class="px-4 py-3 text-center text-xs font-semibold text-gray-500 dark:text-gray-300 uppercase tracking-wider">Estado</th>
                         <th class="px-4 py-3 text-right text-xs font-semibold text-gray-500 dark:text-gray-300 uppercase tracking-wider">Acciones</th>
@@ -214,12 +219,15 @@
                         <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
                             {{ $user->phone ?? '-' }}
                         </td>
+                        <td class="px-4 py-3 whitespace-nowrap text-center text-sm text-gray-500 dark:text-gray-400">
+                            {{ $user->cedula ?? '-' }}
+                        </td>
                         <td class="px-4 py-3 whitespace-nowrap text-center">
                             <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium {{ $user->role === 'superadmin' ? 'bg-red-50 dark:bg-red-900/30 text-red-700 dark:text-red-300' : ($user->role === 'admin' ? 'bg-purple-50 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300' : 'bg-sky-50 dark:bg-sky-900/30 text-sky-700 dark:text-sky-300') }}">
                                 @if($user->role === 'superadmin')
                                 <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
                                 @endif
-                                {{ $user->role === 'superadmin' ? 'Superadmin' : ($user->role === 'admin' ? 'Administrador' : 'Cantina') }}
+                                {{ $user->role === 'superadmin' ? '👑 Superadmin' : ($user->role === 'admin' ? '🛡️ Administrador' : '🍽️ Cantina') }}
                             </span>
                         </td>
                         <td class="px-4 py-3 whitespace-nowrap text-center">
@@ -231,7 +239,7 @@
                         <td class="px-4 py-3 whitespace-nowrap text-right">
                             <div class="flex items-center justify-end gap-1">
                                 @if(Auth::user()->isSuperAdmin() || $user->role !== 'superadmin')
-                                <button @click="$dispatch('open-edit-modal', { id: {{ $user->id }}, name: '{{ $user->name }}', email: '{{ $user->email }}', phone: '{{ $user->phone ?? '' }}', role: '{{ $user->role }}' })"
+                                <button @click="$dispatch('open-edit-modal', { id: {{ $user->id }}, name: '{{ $user->name }}', email: '{{ $user->email }}', cedula: '{{ $user->cedula ?? '' }}', phone: '{{ $user->phone ?? '' }}', role: '{{ $user->role }}' })"
                                     class="p-2 text-gray-400 hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-indigo-900/20 rounded-lg transition-colors" title="Editar">
                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
                                 </button>
@@ -263,7 +271,7 @@
                     </tr>
                     @empty
                     <tr>
-                        <td colspan="5" class="px-4 py-12 text-center">
+                        <td colspan="6" class="px-4 py-12 text-center">
                             <svg class="w-12 h-12 mx-auto text-gray-300 dark:text-gray-600 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/>
                             </svg>
@@ -307,7 +315,7 @@
                 </div>
                 <div class="flex items-center gap-1 shrink-0">
                     @if(Auth::user()->isSuperAdmin() || $user->role !== 'superadmin')
-                    <button @click="$dispatch('open-edit-modal', { id: {{ $user->id }}, name: '{{ $user->name }}', email: '{{ $user->email }}', phone: '{{ $user->phone ?? '' }}', role: '{{ $user->role }}' })"
+                    <button @click="$dispatch('open-edit-modal', { id: {{ $user->id }}, name: '{{ $user->name }}', email: '{{ $user->email }}', cedula: '{{ $user->cedula ?? '' }}', phone: '{{ $user->phone ?? '' }}', role: '{{ $user->role }}' })"
                         class="p-1.5 text-gray-400 hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-indigo-900/20 rounded-lg transition-colors" title="Editar">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
                     </button>
@@ -341,8 +349,11 @@
                     @if($user->phone)
                     <span class="text-xs text-gray-500 dark:text-gray-400">{{ $user->phone }}</span>
                     @endif
+                    @if($user->cedula)
+                    <span class="text-xs text-gray-500 dark:text-gray-400">C.I. {{ $user->cedula }}</span>
+                    @endif
                     <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium {{ $user->role === 'superadmin' ? 'bg-red-50 dark:bg-red-900/30 text-red-700 dark:text-red-300' : ($user->role === 'admin' ? 'bg-purple-50 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300' : 'bg-sky-50 dark:bg-sky-900/30 text-sky-700 dark:text-sky-300') }}">
-                        {{ $user->role === 'superadmin' ? 'Superadmin' : ($user->role === 'admin' ? 'Admin' : 'Cantina') }}
+                        {{ $user->role === 'superadmin' ? '👑 Superadmin' : ($user->role === 'admin' ? '🛡️ Admin' : '🍽️ Cantina') }}
                     </span>
                 </div>
                 <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium {{ $user->is_active ? 'bg-emerald-50 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-300' : 'bg-red-50 dark:bg-red-900/30 text-red-700 dark:text-red-300' }}">
@@ -359,10 +370,15 @@
             <p class="text-sm text-gray-400 dark:text-gray-500">No hay usuarios registrados</p>
         </div>
         @endforelse
+        @if($users->hasPages())
+        <div class="px-4 py-3 border-t border-gray-100 dark:border-gray-700">
+            {{ $users->links() }}
+        </div>
+        @endif
     </div>
 
     {{-- Edit User Modal --}}
-    <div x-data="{ open: false, user: { id: null, name: '', email: '', phone: '', role: 'cantina' } }"
+    <div x-data="{ open: false, user: { id: null, name: '', email: '', cedula: '', phone: '', role: 'cantina' } }"
         @open-edit-modal.window="user = $event.detail; open = true"
         x-show="open" x-cloak
         class="fixed inset-0 z-50 flex items-center justify-center p-4"
@@ -418,6 +434,12 @@
                             x-bind:value="user.email">
                     </div>
                     <div>
+                        <x-input-label value="Cédula" />
+                        <input type="text" name="cedula" maxlength="20" placeholder="1234567"
+                            class="mt-1 block w-full border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 focus:border-indigo-500 focus:ring-indigo-500 rounded-lg shadow-sm"
+                            x-bind:value="user.cedula">
+                    </div>
+                    <div>
                         <x-input-label value="Teléfono" />
                         <input type="tel" name="phone"
                             class="mt-1 block w-full border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 focus:border-indigo-500 focus:ring-indigo-500 rounded-lg shadow-sm"
@@ -433,10 +455,10 @@
                         <select name="role"
                             class="mt-1 block w-full border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 focus:border-indigo-500 focus:ring-indigo-500 rounded-lg shadow-sm"
                             x-bind:value="user.role">
-                            <option value="cantina">Cantina</option>
-                            <option value="admin">Administrador</option>
+                            <option value="cantina">🍽️ Cantina</option>
+                            <option value="admin">🛡️ Administrador</option>
                             @if(Auth::user()->isSuperAdmin())
-                            <option value="superadmin">Superadmin</option>
+                            <option value="superadmin">👑 Superadmin</option>
                             @endif
                         </select>
                     </div>
@@ -447,9 +469,9 @@
                         stream: null,
                         initCamera() {
                             if (!navigator.mediaDevices?.getUserMedia) { alert('Tu dispositivo no soporta acceso a la cámara.'); return }
-                            navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } })
+                            navigator.mediaDevices.getUserMedia({ video: { facingMode: { ideal: 'environment' } } })
                                 .then(s => { this.stream = s; this.cameraOpen = true; this.$nextTick(() => { const v = document.getElementById('edit-camera-preview'); if (v) v.srcObject = s }) })
-                                .catch(() => alert('No se pudo acceder a la cámara. Verifica los permisos.'))
+                                .catch(e => alert(e.name === 'OverconstrainedError' ? 'No se encontró una cámara trasera. Recarga la página e inténtalo de nuevo.' : 'No se pudo acceder a la cámara. Verifica que el navegador tenga permiso (y usa https:// o localhost).'))
                         },
                         stopCamera() {
                             if (this.stream) { this.stream.getTracks().forEach(t => t.stop()); this.stream = null }

@@ -8,6 +8,8 @@ use App\Models\Category;
 use App\Models\Customer;
 use App\Models\User;
 use App\Models\Setting;
+use App\Http\Requests\StoreUserRequest;
+use App\Http\Requests\UpdateUserRequest;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
@@ -133,27 +135,21 @@ class AdminController extends Controller
 
         if ($search = $request->input('search')) {
             $query->where(function ($q) use ($search) {
-                $q->where('name', 'like', "%{$search}%")
-                  ->orWhere('email', 'like', "%{$search}%")
-                  ->orWhere('phone', 'like', "%{$search}%")
-                  ->orWhere('role', 'like', "%{$search}%");
+            $q->where('name', 'like', "%{$search}%")
+              ->orWhere('email', 'like', "%{$search}%")
+              ->orWhere('cedula', 'like', "%{$search}%")
+              ->orWhere('phone', 'like', "%{$search}%")
+              ->orWhere('role', 'like', "%{$search}%");
             });
         }
 
-        $users = $query->get();
+        $users = $query->paginate(15)->withQueryString();
         return view('admin.users', compact('users'));
     }
 
-    public function storeUser(Request $request)
+    public function storeUser(StoreUserRequest $request)
     {
-        $validated = $request->validate([
-            'name' => 'required|string|max:255',
-            'email' => 'required|email|unique:users,email',
-            'phone' => 'nullable|string|max:20',
-            'password' => 'required|string|min:6',
-            'role' => 'required|in:cantina,admin,superadmin',
-            'profile_photo' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:8192',
-        ]);
+        $validated = $request->validated();
 
         if ($validated['role'] === 'superadmin' && !auth()->user()->isSuperAdmin()) {
             abort(403, 'No puedes crear un superadmin.');
@@ -162,6 +158,7 @@ class AdminController extends Controller
         $data = [
             'name' => $validated['name'],
             'email' => $validated['email'],
+            'cedula' => $validated['cedula'] ?? null,
             'phone' => $validated['phone'],
             'password' => bcrypt($validated['password']),
             'role' => $validated['role'],
@@ -176,24 +173,18 @@ class AdminController extends Controller
         return redirect()->route('admin.users')->with('success', 'Usuario creado exitosamente.');
     }
 
-    public function updateUser(Request $request, User $user)
+    public function updateUser(UpdateUserRequest $request, User $user)
     {
         if ($user->role === 'superadmin' && !auth()->user()->isSuperAdmin()) {
             abort(403, 'No puedes modificar un superadmin.');
         }
 
-        $validated = $request->validate([
-            'name' => 'required|string|max:255',
-            'email' => 'required|email|unique:users,email,' . $user->id,
-            'phone' => 'nullable|string|max:20',
-            'role' => 'required|in:cantina,admin,superadmin',
-            'password' => 'nullable|string|min:6',
-            'profile_photo' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:8192',
-        ]);
+        $validated = $request->validated();
 
         $data = [
             'name' => $validated['name'],
             'email' => $validated['email'],
+            'cedula' => $validated['cedula'] ?? null,
             'phone' => $validated['phone'],
             'role' => $validated['role'],
         ];
@@ -203,7 +194,7 @@ class AdminController extends Controller
         }
 
         if ($request->hasFile('profile_photo')) {
-            $data['profile_photo_path'] = $request->file('profile_photo')->store('profile-photos', 'public');
+            $data['profile_photo_path'] = $user->uploadProfilePhoto($request->file('profile_photo'));
         }
 
         $user->update($data);

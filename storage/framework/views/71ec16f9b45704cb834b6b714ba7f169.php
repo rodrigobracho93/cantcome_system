@@ -51,7 +51,7 @@
                     <h2 class="text-xl sm:text-2xl font-bold text-white">¡Hola, <?php echo e(Auth::user()->name); ?>!</h2>
                     <?php $activeRole = session('active_role', Auth::user()->role); ?>
                     <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold <?php echo e($activeRole === 'admin' ? 'bg-amber-400/20 text-white' : 'bg-emerald-400/20 text-white'); ?>">
-                        <?php echo e($activeRole === 'admin' ? 'Administrador' : 'Cantina'); ?>
+                        <?php echo e($activeRole === 'admin' ? '🛡️ Administrador' : '🍽️ Cantina'); ?>
 
                     </span>
                 </div>
