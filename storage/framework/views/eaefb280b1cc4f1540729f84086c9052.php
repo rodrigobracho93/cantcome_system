@@ -30,11 +30,49 @@
 <?php endif; ?>
 
     <?php if(session('success')): ?>
-    <div class="bg-emerald-50 dark:bg-emerald-900/30 border border-emerald-200 dark:border-emerald-800 text-emerald-700 dark:text-emerald-300 px-4 py-3 rounded-lg mb-4 text-sm flex items-center gap-2">
-        <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-        <?php echo e(session('success')); ?>
+    <?php if (isset($component)) { $__componentOriginal319e91a3695841614c10678a2fcb42d5 = $component; } ?>
+<?php if (isset($attributes)) { $__attributesOriginal319e91a3695841614c10678a2fcb42d5 = $attributes; } ?>
+<?php $component = Illuminate\View\AnonymousComponent::resolve(['view' => 'components.login-alert','data' => ['type' => 'info','message' => session('success'),'class' => 'mb-4']] + (isset($attributes) && $attributes instanceof Illuminate\View\ComponentAttributeBag ? $attributes->all() : [])); ?>
+<?php $component->withName('login-alert'); ?>
+<?php if ($component->shouldRender()): ?>
+<?php $__env->startComponent($component->resolveView(), $component->data()); ?>
+<?php if (isset($attributes) && $attributes instanceof Illuminate\View\ComponentAttributeBag): ?>
+<?php $attributes = $attributes->except(\Illuminate\View\AnonymousComponent::ignoredParameterNames()); ?>
+<?php endif; ?>
+<?php $component->withAttributes(['type' => 'info','message' => \Illuminate\View\Compilers\BladeCompiler::sanitizeComponentAttribute(session('success')),'class' => 'mb-4']); ?>
+<?php echo $__env->renderComponent(); ?>
+<?php endif; ?>
+<?php if (isset($__attributesOriginal319e91a3695841614c10678a2fcb42d5)): ?>
+<?php $attributes = $__attributesOriginal319e91a3695841614c10678a2fcb42d5; ?>
+<?php unset($__attributesOriginal319e91a3695841614c10678a2fcb42d5); ?>
+<?php endif; ?>
+<?php if (isset($__componentOriginal319e91a3695841614c10678a2fcb42d5)): ?>
+<?php $component = $__componentOriginal319e91a3695841614c10678a2fcb42d5; ?>
+<?php unset($__componentOriginal319e91a3695841614c10678a2fcb42d5); ?>
+<?php endif; ?>
+    <?php endif; ?>
 
-    </div>
+    <?php if($errors->has('login')): ?>
+    <?php if (isset($component)) { $__componentOriginal319e91a3695841614c10678a2fcb42d5 = $component; } ?>
+<?php if (isset($attributes)) { $__attributesOriginal319e91a3695841614c10678a2fcb42d5 = $attributes; } ?>
+<?php $component = Illuminate\View\AnonymousComponent::resolve(['view' => 'components.login-alert','data' => ['type' => 'error','message' => $errors->first('login'),'class' => 'mb-4']] + (isset($attributes) && $attributes instanceof Illuminate\View\ComponentAttributeBag ? $attributes->all() : [])); ?>
+<?php $component->withName('login-alert'); ?>
+<?php if ($component->shouldRender()): ?>
+<?php $__env->startComponent($component->resolveView(), $component->data()); ?>
+<?php if (isset($attributes) && $attributes instanceof Illuminate\View\ComponentAttributeBag): ?>
+<?php $attributes = $attributes->except(\Illuminate\View\AnonymousComponent::ignoredParameterNames()); ?>
+<?php endif; ?>
+<?php $component->withAttributes(['type' => 'error','message' => \Illuminate\View\Compilers\BladeCompiler::sanitizeComponentAttribute($errors->first('login')),'class' => 'mb-4']); ?>
+<?php echo $__env->renderComponent(); ?>
+<?php endif; ?>
+<?php if (isset($__attributesOriginal319e91a3695841614c10678a2fcb42d5)): ?>
+<?php $attributes = $__attributesOriginal319e91a3695841614c10678a2fcb42d5; ?>
+<?php unset($__attributesOriginal319e91a3695841614c10678a2fcb42d5); ?>
+<?php endif; ?>
+<?php if (isset($__componentOriginal319e91a3695841614c10678a2fcb42d5)): ?>
+<?php $component = $__componentOriginal319e91a3695841614c10678a2fcb42d5; ?>
+<?php unset($__componentOriginal319e91a3695841614c10678a2fcb42d5); ?>
+<?php endif; ?>
     <?php endif; ?>
 
     <div class="text-center mb-6">
@@ -92,26 +130,6 @@
 <?php if (isset($__componentOriginal18c21970322f9e5c938bc954620c12bb)): ?>
 <?php $component = $__componentOriginal18c21970322f9e5c938bc954620c12bb; ?>
 <?php unset($__componentOriginal18c21970322f9e5c938bc954620c12bb); ?>
-<?php endif; ?>
-            <?php if (isset($component)) { $__componentOriginalf94ed9c5393ef72725d159fe01139746 = $component; } ?>
-<?php if (isset($attributes)) { $__attributesOriginalf94ed9c5393ef72725d159fe01139746 = $attributes; } ?>
-<?php $component = Illuminate\View\AnonymousComponent::resolve(['view' => 'components.input-error','data' => ['messages' => $errors->get('login'),'class' => 'mt-2']] + (isset($attributes) && $attributes instanceof Illuminate\View\ComponentAttributeBag ? $attributes->all() : [])); ?>
-<?php $component->withName('input-error'); ?>
-<?php if ($component->shouldRender()): ?>
-<?php $__env->startComponent($component->resolveView(), $component->data()); ?>
-<?php if (isset($attributes) && $attributes instanceof Illuminate\View\ComponentAttributeBag): ?>
-<?php $attributes = $attributes->except(\Illuminate\View\AnonymousComponent::ignoredParameterNames()); ?>
-<?php endif; ?>
-<?php $component->withAttributes(['messages' => \Illuminate\View\Compilers\BladeCompiler::sanitizeComponentAttribute($errors->get('login')),'class' => 'mt-2']); ?>
-<?php echo $__env->renderComponent(); ?>
-<?php endif; ?>
-<?php if (isset($__attributesOriginalf94ed9c5393ef72725d159fe01139746)): ?>
-<?php $attributes = $__attributesOriginalf94ed9c5393ef72725d159fe01139746; ?>
-<?php unset($__attributesOriginalf94ed9c5393ef72725d159fe01139746); ?>
-<?php endif; ?>
-<?php if (isset($__componentOriginalf94ed9c5393ef72725d159fe01139746)): ?>
-<?php $component = $__componentOriginalf94ed9c5393ef72725d159fe01139746; ?>
-<?php unset($__componentOriginalf94ed9c5393ef72725d159fe01139746); ?>
 <?php endif; ?>
         </div>
 

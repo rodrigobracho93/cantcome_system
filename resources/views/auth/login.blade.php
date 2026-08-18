@@ -2,10 +2,11 @@
     <x-auth-session-status class="mb-4" :status="session('status')" />
 
     @if(session('success'))
-    <div class="bg-emerald-50 dark:bg-emerald-900/30 border border-emerald-200 dark:border-emerald-800 text-emerald-700 dark:text-emerald-300 px-4 py-3 rounded-lg mb-4 text-sm flex items-center gap-2">
-        <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-        {{ session('success') }}
-    </div>
+    <x-login-alert type="info" :message="session('success')" class="mb-4" />
+    @endif
+
+    @if($errors->has('login'))
+    <x-login-alert type="error" :message="$errors->first('login')" class="mb-4" />
     @endif
 
     <div class="text-center mb-6">
@@ -26,7 +27,6 @@
         <div>
             <x-input-label for="login" value="Correo electrónico o cédula" />
             <x-text-input id="login" class="block mt-1 w-full" type="text" name="login" :value="old('login')" placeholder="tu@correo.com o 1234567" required autofocus autocomplete="username" />
-            <x-input-error :messages="$errors->get('login')" class="mt-2" />
         </div>
 
         <div class="mt-4" x-data="{ show: false }">

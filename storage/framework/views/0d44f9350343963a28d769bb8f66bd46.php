@@ -25,8 +25,8 @@
 </head>
 <body>
     <div class="header">
-        <img src="<?php echo e(public_path('logo.png')); ?>" alt="Logo" style="width: 60px; height: auto; margin-bottom: 4px;">
-        <h1>CantCome</h1>
+        <img src="<?php echo e(public_path($systemLogo ?? 'logo.png')); ?>" alt="Logo" style="width: 60px; height: auto; margin-bottom: 4px;">
+        <h1><?php echo e($systemName ?? 'CantCome'); ?></h1>
         <p>Cantina & Comedor</p>
         <p>Recibo #<?php echo e($sale->id); ?></p>
         <p><?php echo e($sale->created_at->locale('es')->isoFormat('D [de] MMM [del] YYYY - H:mm')); ?></p>
@@ -79,7 +79,7 @@
 
     <div class="footer">
         <p>¡Gracias por su compra!</p>
-        <p>CantCome - Sistema de Gestión</p>
+        <p><?php echo e($systemName ?? 'CantCome'); ?> - Sistema de Gestión</p>
     </div>
 </body>
 </html><?php /**PATH C:\xampp\Proyectos\cantcome_system\resources\views/sales/recibo.blade.php ENDPATH**/ ?>

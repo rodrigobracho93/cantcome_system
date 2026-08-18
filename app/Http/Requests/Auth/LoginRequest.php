@@ -48,14 +48,14 @@ class LoginRequest extends FormRequest
         if (!$user || !Hash::check($this->string('password'), $user->password)) {
             RateLimiter::hit($this->throttleKey());
             throw ValidationException::withMessages([
-                'login' => trans('auth.failed'),
+                'login' => __('auth.failed'),
             ]);
         }
 
         if (!$user->is_active) {
             RateLimiter::hit($this->throttleKey());
             throw ValidationException::withMessages([
-                'login' => 'Tu cuenta está desactivada. Contacta al administrador.',
+                'login' => __('auth.deactivated'),
             ]);
         }
 
@@ -80,7 +80,7 @@ class LoginRequest extends FormRequest
         $seconds = RateLimiter::availableIn($this->throttleKey());
 
         throw ValidationException::withMessages([
-            'login' => trans('auth.throttle', [
+            'login' => __('auth.throttle', [
                 'seconds' => $seconds,
                 'minutes' => ceil($seconds / 60),
             ]),
