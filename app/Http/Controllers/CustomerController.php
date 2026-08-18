@@ -89,6 +89,8 @@ class CustomerController extends Controller
     {
         $query = $request->get('q');
         $customers = Customer::where('name', 'like', "%{$query}%")
+            ->orWhere('first_name', 'like', "%{$query}%")
+            ->orWhere('last_name', 'like', "%{$query}%")
             ->orWhere('document', 'like', "%{$query}%")
             ->orWhere('phone', 'like', "%{$query}%")
             ->orWhere('company', 'like', "%{$query}%")

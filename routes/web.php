@@ -71,6 +71,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/stock-movements', [StockMovementController::class, 'index'])->name('stock-movements.index');
     Route::get('/stock-movements/create', [StockMovementController::class, 'create'])->name('stock-movements.create');
     Route::post('/stock-movements', [StockMovementController::class, 'store'])->name('stock-movements.store');
+    Route::get('/stock-movements/{stockMovement}/edit', [StockMovementController::class, 'edit'])->name('stock-movements.edit');
     Route::put('/stock-movements/{stockMovement}', [StockMovementController::class, 'update'])->name('stock-movements.update');
     Route::delete('/stock-movements/{stockMovement}', [StockMovementController::class, 'destroy'])->name('stock-movements.destroy');
 

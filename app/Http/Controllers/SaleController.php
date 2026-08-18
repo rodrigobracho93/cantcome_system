@@ -14,15 +14,30 @@ use Barryvdh\DomPDF\Facade\Pdf;
 
 class SaleController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
         $user = auth()->user();
         $sales = Sale::with(['user', 'customer', 'items.product', 'cajaMovimientos'])
             ->when(!$user->isAdmin(), fn($q) => $q->where('user_id', $user->id))
+            ->when($request->filled('month') && $request->filled('year'), function ($q) use ($request) {
+                $q->whereMonth('created_at', $request->month)
+                  ->whereYear('created_at', $request->year);
+            })
+            ->when($request->filled('customer_id'), function ($q) use ($request) {
+                $q->where('customer_id', $request->customer_id);
+            })
             ->orderByDesc('created_at')
-            ->paginate(15);
+            ->paginate(15)
+            ->withQueryString();
 
-        return view('sales.index', compact('sales'));
+        $selectedCustomer = $request->filled('customer_id')
+            ? Customer::find($request->customer_id)
+            : null;
+
+        $currentYear = date('Y');
+        $years = range($currentYear, $currentYear - 5);
+
+        return view('sales.index', compact('sales', 'selectedCustomer', 'years'));
     }
 
     public function create()

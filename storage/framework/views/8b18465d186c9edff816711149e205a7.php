@@ -20,6 +20,77 @@
         </a>
     </div>
 
+    
+    <form method="GET" action="<?php echo e(route('sales.index')); ?>" class="mb-6 bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-4"
+        x-data="{
+            query: '<?php echo e($selectedCustomer?->full_name ?? ''); ?>',
+            customer_id: '<?php echo e(request('customer_id', '')); ?>',
+            results: [],
+            open: false,
+            loading: false,
+            async search() {
+                if (this.query.length < 1) { this.results = []; this.customer_id = ''; return; }
+                this.loading = true;
+                const res = await fetch('<?php echo e(route("customers.search")); ?>?q=' + encodeURIComponent(this.query));
+                this.results = await res.json();
+                this.loading = false;
+                this.open = true;
+            },
+            select(c) {
+                this.query = c.full_name || c.name || (c.first_name + ' ' + c.last_name);
+                this.customer_id = c.id;
+                this.open = false;
+            },
+            clear() { this.query = ''; this.customer_id = ''; this.results = []; }
+        }">
+        <div class="flex flex-col sm:flex-row items-end gap-3">
+            <div class="w-full sm:w-64 relative">
+                <label class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Cliente (nombre, CI o RUC)</label>
+                <div class="relative">
+                    <input type="text" x-model="query" @input.debounce.300ms="search" @focus="if(results.length) open = true" placeholder="Buscar cliente..."
+                        class="w-full border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 rounded-lg shadow-sm focus:border-indigo-500 focus:ring-indigo-500 text-sm pr-8">
+                    <input type="hidden" name="customer_id" :value="customer_id">
+                    <button type="button" x-show="query" @click="clear()" class="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                    </button>
+                </div>
+                <div x-show="open && results.length > 0" x-cloak @click.outside="open = false"
+                    class="absolute z-20 mt-1 w-full bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600 rounded-lg shadow-lg max-h-60 overflow-auto">
+                    <template x-for="c in results" :key="c.id">
+                        <button type="button" @click="select(c)" class="w-full text-left px-3 py-2 text-sm hover:bg-indigo-50 dark:hover:bg-gray-700 transition-colors border-b border-gray-100 dark:border-gray-700 last:border-0">
+                            <div class="font-medium text-gray-900 dark:text-white" x-text="c.full_name || c.name || (c.first_name + ' ' + c.last_name)"></div>
+                            <div class="text-xs text-gray-500 dark:text-gray-400" x-text="(c.document ? 'Doc: ' + c.document : '') + (c.company ? ' — ' + c.company : '')"></div>
+                        </button>
+                    </template>
+                </div>
+            </div>
+            <div class="w-full sm:w-auto">
+                <label class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Mes</label>
+                <select name="month" class="w-full sm:w-40 border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 rounded-lg shadow-sm focus:border-indigo-500 focus:ring-indigo-500 text-sm">
+                    <option value="">Todos</option>
+                    <?php for($m = 1; $m <= 12; $m++): ?>
+                    <option value="<?php echo e($m); ?>" <?php echo e(request('month') == $m ? 'selected' : ''); ?>><?php echo e(Carbon\Carbon::create()->month($m)->locale('es')->isoFormat('MMMM')); ?></option>
+                    <?php endfor; ?>
+                </select>
+            </div>
+            <div class="w-full sm:w-auto">
+                <label class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Año</label>
+                <select name="year" class="w-full sm:w-32 border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 rounded-lg shadow-sm focus:border-indigo-500 focus:ring-indigo-500 text-sm">
+                    <option value="">Todos</option>
+                    <?php $__currentLoopData = $years; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $y): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                    <option value="<?php echo e($y); ?>" <?php echo e(request('year') == $y ? 'selected' : ''); ?>><?php echo e($y); ?></option>
+                    <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+                </select>
+            </div>
+            <div class="flex gap-2 w-full sm:w-auto">
+                <button type="submit" class="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors text-sm font-medium">Filtrar</button>
+                <?php if(request()->hasAny(['month', 'year', 'customer_id'])): ?>
+                <a href="<?php echo e(route('sales.index')); ?>" class="px-4 py-2 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors text-sm font-medium">Limpiar</a>
+                <?php endif; ?>
+            </div>
+        </div>
+    </form>
+
     <?php if(session('success')): ?>
         <div class="bg-emerald-50 dark:bg-emerald-900/30 border border-emerald-200 dark:border-emerald-800 text-emerald-700 dark:text-emerald-300 px-4 py-3 rounded-lg mb-6 text-sm flex items-center gap-2">
             <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">

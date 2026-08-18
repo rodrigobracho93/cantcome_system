@@ -16,10 +16,23 @@ class StockMovementController extends Controller
             $query->where('product_id', $request->product_id);
         }
 
-        $movements = $query->latest()->paginate(20);
-        $products = Product::orderBy('name')->get();
+        if ($request->filled('month') && $request->filled('year')) {
+            $query->whereMonth('created_at', $request->month)
+                  ->whereYear('created_at', $request->year);
+        }
 
-        return view('stock-movements.index', compact('movements', 'products'));
+        $movements = $query->latest()->paginate(20)->withQueryString();
+
+        $stats = [
+            'total' => StockMovement::count(),
+            'units' => StockMovement::sum('quantity'),
+            'products' => StockMovement::distinct('product_id')->count('product_id'),
+        ];
+
+        $currentYear = date('Y');
+        $years = range($currentYear, $currentYear - 5);
+
+        return view('stock-movements.index', compact('movements', 'stats', 'years'));
     }
 
     public function create()
